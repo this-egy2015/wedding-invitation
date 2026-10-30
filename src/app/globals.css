@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), ui-serif, Georgia, serif;
+
+  --color-ivory: #faf7f2;
+  --color-sand: #efe6d8;
+  --color-gold: #a8834a;
+  --color-ink: #2f2a24;
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-neutral-700;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:opacity-50;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50;
+  }
+}
