@@ -1,0 +1,127 @@
+/* Figma → code prototype. Source: file jSjr6kbydM2da7LMpIBA12, Frame 1 (5:2) and Frame 2 (1:2).
+   Both frames are 390px wide artboards; coordinates below are Figma frame coordinates. */
+:root {
+  --cream: #fdfaf4;
+  --brown: #914b29;
+  --terracotta: #e26a2f;
+  --blush: #ffebec;
+  --shadow: 7px 6px 9.3px 0 rgb(0 0 0 / 25%);
+  /* Figma uses SignPainter HouseScript (macOS only). Yellowtail at 0.89x matches its text widths. */
+  --script: Yellowtail, cursive;
+  --serif: "Cormorant Garamond", Georgia, serif;
+  color: #fff;
+  background: #2b160c;
+  font-family: var(--serif);
+}
+* { box-sizing: border-box; }
+body { min-width: 320px; min-height: 100vh; margin: 0; display: grid; place-items: center; background: #2b160c; }
+body:has(.prototype.is-opened) { place-items: start center; background: var(--brown); }
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+.prototype { width: 390px; overflow: hidden; }
+
+/* ---------- Frame 1 (5:2) — cover gate ---------- */
+.invitation { position: relative; isolation: isolate; width: 390px; height: 799px; overflow: hidden; background: #32170a; }
+.background, .glow, .polygon, .bouquet, .scrim { position: absolute; pointer-events: none; }
+.background { z-index: -4; top: -305px; left: -269px; width: 927px; height: 1159px; max-width: none; object-fit: cover; }
+.glow { z-index: -3; top: 396px; left: -182px; width: 812px; height: 529px; }
+.scrim { z-index: -2; inset: 0; background: rgb(0 0 0 / 55%); }
+/* Polygon 1 is a 295px box; the hexagon fills it with 6.7% side insets. */
+.polygon { top: 68px; left: 64.77px; width: 255.48px; height: 295px; }
+/* 18:236: 179.5 x 145.56 box, image 162.71 x 122.04 centred and rotated 8.83deg. */
+.bouquet { top: 202px; left: -19px; width: 179.51px; height: 145.56px; display: flex; align-items: center; justify-content: center; }
+.bouquet img { width: 162.71px; height: 122.04px; object-fit: cover; transform: rotate(8.83deg); }
+.copy { position: absolute; inset: 0; color: var(--blush); text-align: center; }
+.copy > p, .copy h1 { position: absolute; margin: 0; white-space: nowrap; transform: translateX(-50%); font-weight: 400; line-height: normal; }
+.eyebrow { top: 384px; left: 205px; font-size: 24px; text-transform: uppercase; }
+.copy h1 { top: 422px; left: 195px; color: #fff; font-family: var(--script); font-size: 57px; line-height: 48px; }
+.recipient-label { top: 529px; left: 194px; font-size: 20px; }
+.recipient { top: 553px; left: 194px; font-size: 24px; }
+/* Figma box is 42px for two lines, i.e. 21px per line. */
+.copy .message { top: 592px; left: 194.5px; font-size: 18px; line-height: 21px; }
+.open-button { position: absolute; top: 663px; left: 94px; width: 200px; height: 50px; border: 0; border-radius: 25px; color: #fff; background: var(--terracotta); cursor: pointer; font: 700 18px/1.149 var(--serif); text-transform: uppercase; transition: filter .2s ease, transform .2s ease; }
+.open-button:hover { filter: brightness(1.08); }
+.open-button:active { transform: scale(.97); }
+:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* ---------- Frame 2 (1:2) — invitation body ---------- */
+.details { display: none; position: relative; width: 390px; height: 6428px; overflow: hidden; background: #fff; color: #000; }
+.prototype.is-opened .details { display: block; }
+.prototype.is-opened .cover { display: none; }
+.layer { position: absolute; display: block; max-width: none; }
+.bg-cream { left: 0; width: 390px; background: var(--cream); }
+.bg-brown { left: 0; top: 2398px; width: 390px; height: 4030px; background: var(--brown); }
+.quote-photo { left: 0; top: 564px; width: 390px; height: 681px; object-fit: cover; object-position: bottom; }
+.curve { left: -126px; width: 641px; height: 252px; }
+.rumah-gadang { left: -23px; top: 223px; width: 669px; height: 446px; object-fit: cover; opacity: .15; }
+.pattern { overflow: hidden; }
+.pattern img { position: absolute; top: 0; left: 0; width: 100%; height: 239.84%; max-width: none; }
+
+/* Text: Figma places each text box by its top edge; centred boxes are anchored at their centre x. */
+.t { position: absolute; margin: 0; font-weight: 400; line-height: normal; white-space: nowrap; }
+.c { transform: translateX(-50%); text-align: center; }
+.wrap { white-space: normal; }
+.script { font-family: var(--script); color: var(--terracotta); }
+.hero-kicker, .hero-date { font-size: 24px; }
+.hero-names { color: var(--brown); font-size: 85.5px; line-height: 74.6px; }
+.script-32 { font-size: 28.5px; line-height: 24.06px; }
+.script-64 { font-size: 57px; line-height: 48.13px; }
+.cd-num { color: #fff; font: 700 26px/1.149 Poppins, sans-serif; }
+.cd-label { color: #fff; font: 500 17px/1.149 Poppins, sans-serif; }
+.quote-card { left: 43px; top: 738px; width: 304px; height: 351px; border-radius: 29px; background: var(--blush); opacity: .37; box-shadow: 6px 6px 9.9px 1px rgb(0 0 0 / 25%); }
+.quote-text { color: #fff; font-size: 18px; }
+.quote-source { color: #fff; font-size: 24px; font-weight: 700; }
+.intro, .parents { font-size: 14px; }
+.medium { font-weight: 500; }
+.arch-frame { left: 49px; width: 303px; height: 409px; }
+.arch-photo { left: 54.19px; width: 301.6px; height: 407.7px; }
+
+.section-title { color: #fff; font-size: 36px; font-weight: 700; }
+.event-intro { color: var(--blush); font-size: 18px; }
+.card { border-radius: 29px; background: #fff; box-shadow: var(--shadow); }
+.event-title { color: var(--terracotta); font-size: 36px; font-weight: 700; }
+.event-date { font-size: 20px; }
+.event-venue { font-size: 20px; font-weight: 600; }
+.event-addr { font-size: 13px; font-weight: 600; }
+.event-time { font: 400 15px/normal Montserrat, sans-serif; }
+.venue-name, .venue-addr { color: var(--blush); font-weight: 600; }
+.venue-name { font-size: 20px; }
+.venue-addr { font-size: 13px; }
+.btn { width: 135px; height: 31px; padding: 0; border: 0; border-radius: 12px; color: #fff; background: var(--terracotta); cursor: pointer; text-decoration: none; transition: filter .2s ease; }
+.btn:hover { filter: brightness(1.08); }
+.btn span { position: absolute; transform: translateX(-50%); white-space: nowrap; font: 700 18px/1.149 var(--serif); }
+.copy-account span { font-size: 13px; }
+.map { left: 48px; width: 304px; height: 247px; border: 8px solid var(--terracotta); border-radius: 29px; box-shadow: var(--shadow); overflow: hidden; }
+.map img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.flowers { left: 253px; width: 128px; height: 128px; object-fit: cover; pointer-events: none; }
+
+.rsvp-intro { color: #d9d9d9; font-size: 18px; }
+.rsvp-title { color: var(--terracotta); font-size: 24px; font-weight: 700; }
+/* Inputs reproduce Figma Rectangle 7/8: #f9f9f9 fill, 1px inner stroke at 35% black, 8px radius. */
+.field { left: 118px; width: 156px; height: 28px; margin: 0; padding: 0 8px; border: 1px solid rgb(0 0 0 / 35%); border-radius: 8px; color: #000; background: #f9f9f9; font: 400 12px/normal Montserrat, sans-serif; appearance: none; -moz-appearance: textfield; }
+.field::placeholder { color: rgb(0 0 0 / 38%); opacity: 1; }
+.field::-webkit-inner-spin-button { -webkit-appearance: none; }
+select.field:invalid { color: rgb(0 0 0 / 38%); }
+.wish-field { height: 92px; padding-top: 4px; resize: none; }
+.wish-card { left: 41px; width: 304px; height: 99px; border-radius: 17px; background: #fff; box-shadow: var(--shadow); color: #000; }
+.wish-card strong { position: absolute; top: 15px; left: 21px; width: 260px; font-size: 20px; font-weight: 700; line-height: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wish-card p { position: absolute; top: 42px; left: 21px; width: 216px; margin: 0; font-size: 15px; font-weight: 500; line-height: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+
+.leaves { width: 235px; height: 156.67px; object-fit: cover; pointer-events: none; }
+.leaves.flip { transform: rotate(180deg); }
+.leaves-rot { width: 193.43px; height: 274.34px; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.leaves-rot img { flex: none; width: 262.38px; height: 174.92px; object-fit: cover; transform: rotate(94.15deg); }
+
+/* 39:4 Gallery: strip origin at (-677, 4425); Figma keyframes translate it 707px → -8322px over 146.98s. */
+.gallery { left: -677px; top: 4425px; width: 9351px; height: 386px; animation: gallery-scroll 146.98s linear infinite; }
+.gallery img { position: absolute; object-fit: cover; }
+@keyframes gallery-scroll { from { translate: 707px -5px; } to { translate: -8322px -5px; } }
+@media (prefers-reduced-motion: reduce) { .gallery { animation-play-state: paused; } }
+
+.gift-text { font-size: 14px; font-weight: 500; }
+.bank-name { font-size: 20px; }
+.account-holder { font-size: 13px; }
+.account-number { font-size: 20px; font-weight: 700; }
+
+.toast { position: fixed; z-index: 10; left: 50%; bottom: 24px; max-width: 340px; margin: 0; padding: 10px 16px; border-radius: 12px; color: #fff; background: rgb(0 0 0 / 80%); font: 500 16px/1.2 var(--serif); text-align: center; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease; }
+.toast.is-visible { opacity: 1; transform: translate(-50%, 0); }

@@ -82,7 +82,7 @@ export function CoverGate({ coupleName, title, guestName, coverImage, portraitIm
 
                 <p className="relative mt-[59px] font-serif text-xl leading-[1.2]">Kepada Yth.</p>
                 <p className="relative font-serif text-2xl leading-[1.21]">{guestName ?? "Tamu Undangan"}</p>
-                <p className="relative mt-[10px] min-h-[42px] font-serif text-lg leading-[0.95]">
+                <p className="relative mt-[10px] font-serif text-lg leading-[21px]">
                   Kami mengundang anda untuk hadir
                   <br />
                   di acara pernikahan kami
