@@ -37,6 +37,9 @@ const event = z.object({
 export const contentSchema = z.object({
   timezone: z.enum(TIMEZONES),
   coverImageUrl: asset,
+  // Defaults keep drafts saved before these fields existed valid.
+  coverPortraitUrl: optionalAsset.default(""),
+  coverTitle: optional(40).default(""),
   musicUrl: optionalAsset,
   groom: person,
   bride: person,

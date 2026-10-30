@@ -3,11 +3,18 @@
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-cormorant), ui-serif, Georgia, serif;
+  /* Figma uses SignPainter HouseScript (macOS-only); Yellowtail is the closest web font. */
+  --font-script: var(--font-yellowtail), cursive;
 
   --color-ivory: #faf7f2;
   --color-sand: #efe6d8;
   --color-gold: #a8834a;
   --color-ink: #2f2a24;
+
+  /* Cover palette from Figma (node 5:2). */
+  --color-blush: #ffebec;
+  --color-terracotta: #e26a2f;
+  --color-cocoa: #2b160c;
 }
 
 @layer components {

@@ -89,6 +89,19 @@ export function ContentForm({ initial, timezones, action }: Props) {
           </select>
         </div>
         <Field name="coverImageUrl" label="URL foto cover" type="url" defaultValue={initial?.coverImageUrl} required />
+        <Field
+          name="coverPortraitUrl"
+          label="URL foto bingkai cover (opsional)"
+          type="url"
+          defaultValue={initial?.coverPortraitUrl}
+          hint="Foto di dalam bingkai heksagon. Jika kosong, memakai foto cover."
+        />
+        <Field
+          name="coverTitle"
+          label="Judul cover (opsional)"
+          defaultValue={initial?.coverTitle}
+          hint='Jika kosong, memakai "Maimbau Baralek".'
+        />
         <Field name="musicUrl" label="URL musik (opsional)" type="url" defaultValue={initial?.musicUrl} />
       </Section>
 

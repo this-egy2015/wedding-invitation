@@ -68,9 +68,14 @@ export function ClassicTemplate({ content, guest, token, wishes, preview }: Temp
   return (
     <CoverGate
       coupleName={coupleName}
+      // Content published before these fields existed has no key at all, hence `||`.
+      title={content.coverTitle || "Maimbau Baralek"}
       guestName={guestName}
       musicUrl={content.musicUrl}
       coverImage={<Image src={content.coverImageUrl} alt="" fill priority sizes="100vw" className="object-cover" />}
+      portraitImage={
+        <Image src={content.coverPortraitUrl || content.coverImageUrl} alt="" fill priority sizes="256px" className="object-cover" />
+      }
     >
       <main className="mx-auto max-w-md bg-ivory text-center text-ink">
         <section className="relative flex min-h-dvh flex-col items-center justify-end overflow-hidden pb-16">

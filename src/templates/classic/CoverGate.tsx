@@ -1,17 +1,28 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import Image from "next/image";
 import { useRef, useState } from "react";
+import bouquet from "./assets/bouquet.png";
+import glow from "./assets/glow.svg";
 
 type Props = {
   coupleName: string;
+  title: string;
   guestName: string | null;
+  /** Full-bleed background photo (next/image with `fill`). */
   coverImage: React.ReactNode;
+  /** Photo shown inside the hexagon frame (next/image with `fill`). */
+  portraitImage: React.ReactNode;
   musicUrl: string;
   children: React.ReactNode;
 };
 
-export function CoverGate({ coupleName, guestName, coverImage, musicUrl, children }: Props) {
+// Pointy-top hexagon, matching Figma "Polygon 1" (255.5 x 295).
+const HEXAGON = "polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%)";
+
+// Layout follows the Figma cover frame (node 5:2, 390 x 799); offsets are its spacing between layers.
+export function CoverGate({ coupleName, title, guestName, coverImage, portraitImage, musicUrl, children }: Props) {
   const [opened, setOpened] = useState(false);
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -42,23 +53,49 @@ export function CoverGate({ coupleName, guestName, coverImage, musicUrl, childre
             key="cover"
             exit={{ opacity: 0, y: -40 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
-            className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-ink"
+            className="fixed inset-0 z-50 overflow-x-hidden overflow-y-auto bg-cocoa"
           >
-            <div className="absolute inset-0 opacity-60">{coverImage}</div>
-            <div className="relative z-10 mx-auto flex max-w-md flex-col items-center px-6 text-center text-ivory">
-              <p className="text-xs tracking-[0.3em] uppercase">The Wedding of</p>
-              <h1 className="mt-3 font-serif text-5xl">{coupleName}</h1>
-              <div className="mt-10 text-sm">
-                <p className="opacity-80">Kepada Yth. Bapak/Ibu/Saudara/i</p>
-                <p className="mt-2 font-serif text-2xl">{guestName ?? "Tamu Undangan"}</p>
+            {/* Figma crops the photo 1.45x larger than cover-fit and 15.6% higher, so the couple sits behind the frame. */}
+            <div className="fixed inset-0 -translate-y-[15.6%] scale-[1.45]">{coverImage}</div>
+            <div className="fixed inset-0 bg-black/55" />
+
+            <div className="relative flex min-h-full flex-col items-center justify-center">
+              <div className="relative flex w-full max-w-[390px] flex-col items-center px-4 pt-[68px] pb-[86px] text-center text-blush">
+                {/* Figma stacks this glow under the 55% black overlay; brightness(0.45) over the overlay is equivalent. */}
+                <Image
+                  src={glow}
+                  alt=""
+                  className="pointer-events-none absolute top-[396px] left-1/2 h-[529px] w-[812px] max-w-none -translate-x-[calc(50%-29px)] brightness-[0.45]"
+                />
+
+                <div className="relative -left-[2.75px] h-[295px] w-[255.5px]">
+                  <div className="absolute inset-0" style={{ clipPath: HEXAGON }}>
+                    {portraitImage}
+                  </div>
+                  <div className="pointer-events-none absolute top-[134px] left-[-83.5px] flex h-[145.5px] w-[179.5px] items-center justify-center">
+                    <Image src={bouquet} alt="" sizes="163px" className="h-[122px] w-[162.7px] rotate-[8.83deg] object-cover" />
+                  </div>
+                </div>
+
+                <p className="relative left-[10px] mt-[21px] font-serif text-2xl leading-[1.21] uppercase">{title}</p>
+                <h1 className="relative mt-[9px] font-script text-[57px] leading-[48px] text-white">{coupleName}</h1>
+
+                <p className="relative mt-[59px] font-serif text-xl leading-[1.2]">Kepada Yth.</p>
+                <p className="relative font-serif text-2xl leading-[1.21]">{guestName ?? "Tamu Undangan"}</p>
+                <p className="relative mt-[10px] min-h-[42px] font-serif text-lg leading-[0.95]">
+                  Kami mengundang anda untuk hadir
+                  <br />
+                  di acara pernikahan kami
+                </p>
+
+                <button
+                  type="button"
+                  onClick={open}
+                  className="relative mt-[29px] h-[50px] w-[200px] rounded-[25px] bg-terracotta font-serif text-lg font-bold text-white uppercase transition hover:brightness-110"
+                >
+                  Buka Undangan
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={open}
-                className="mt-8 rounded-full bg-ivory px-6 py-2.5 text-sm font-medium text-ink hover:bg-sand"
-              >
-                Buka Undangan
-              </button>
             </div>
           </motion.section>
         )}

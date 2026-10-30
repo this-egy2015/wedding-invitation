@@ -7,11 +7,21 @@ Next.js App Router + Supabase (Auth, Postgres) + Drizzle. Modular monolith denga
 ```bash
 cp .env.example .env.local      # isi semua variabel
 npm install
-npm audit                       # wajib bersih sebelum lanjut (lihat Security)
-npm run db:generate             # generate migration dari src/db/schema.ts
-npm run db:migrate              # pakai DIRECT_DATABASE_URL (port 5432)
+npm audit                       # lihat Security untuk temuan yang sudah diketahui
+npm run db:migrate              # terapkan drizzle/*.sql, pakai DIRECT_DATABASE_URL (port 5432)
 npm run dev
 ```
+
+Setelah mengubah `src/db/schema.ts`, jalankan `npm run db:generate` untuk membuat migration baru, lalu `npm run db:migrate`.
+
+### Scripts
+
+| Script | Fungsi |
+|---|---|
+| `npm run dev` / `build` / `start` | Next.js |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | Unit test (`node --test`) |
+| `npm run db:generate` / `db:migrate` | Drizzle Kit |
 
 Supabase Auth: aktifkan Email provider (magic link), set **Site URL** = `SITE_URL`, dan tambahkan `${SITE_URL}/auth/callback` ke Redirect URLs.
 
@@ -50,7 +60,7 @@ src/
 
 - **Upload ke R2**: konten saat ini menerima URL yang harus berada di bawah `R2_PUBLIC_URL`. Upload (presigned URL + verifikasi ukuran/tipe) belum dibuat.
 - **Rate limiting**: belum ada di level aplikasi. Rekomendasi: aturan Vercel WAF untuk `POST /invite/*`. RSVP sudah terbatas satu baris per token.
-- **Desain Figma**: template `classic` adalah layout dasar mobile-first, belum disesuaikan dengan Figma.
+- **Desain Figma**: baru layar cover (Figma node `5:2`) yang sudah diterapkan ke template `classic`. Bagian setelah "Buka Undangan" (mempelai, acara, galeri, RSVP, ucapan, hadiah) masih layout dasar dan menunggu frame Figma berikutnya.
 - **shadcn/ui**: dashboard masih Tailwind biasa. Jalankan `npx shadcn@latest init` bila ingin migrasi.
 - Backup DB dan monitoring (Phase 6): gunakan PITR/backup Supabase.
 
@@ -66,3 +76,13 @@ Batas minimum versi (dicek 2026-10-30 via sumber pihak ketiga; konfirmasi ulang 
 | @supabase/auth-js | 2.69.1 | CVE-2025-48370 (transitive via supabase-js). |
 
 Versi lain belum diverifikasi terhadap registry. Jalankan `npm audit` setelah install, lalu commit `package-lock.json`.
+
+Temuan audit yang sudah diketahui (2026-10-30): 4 moderate dari `esbuild <=0.24.2` lewat `drizzle-kit` (dev dependency, GHSA-67mh-4wv8-2f99). Tidak masuk bundle produksi. Jangan jalankan `npm audit fix --force` karena akan menurunkan drizzle-kit ke 0.18.1.
+
+## Kolaborasi AI (Claude Code & Codex)
+
+Repo ini dikerjakan oleh Claude Code dan Codex.
+
+- `AGENTS.md`: aturan bersama untuk semua agen (Codex membacanya langsung).
+- `CLAUDE.md`: hanya mengimpor `AGENTS.md` untuk Claude Code.
+- `docs/ai-collab/`: ruang berbagi pikiran antar-agen, berisi board status/handoff, log keputusan, dan catatan. Lihat `docs/ai-collab/README.md`.
