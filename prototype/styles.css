@@ -18,7 +18,8 @@ body { min-width: 320px; min-height: 100vh; margin: 0; display: grid; place-item
 body:has(.prototype.is-opened) { place-items: start center; background: var(--brown); }
 button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
-.prototype { width: 390px; overflow: hidden; }
+/* clip, not hidden: hidden would make .prototype a scroll container and break the sticky pages. */
+.prototype { width: 390px; overflow: clip; }
 
 /* ---------- Frame 1 (5:2) — cover gate ---------- */
 .invitation { position: relative; isolation: isolate; width: 390px; height: 799px; overflow: hidden; background: #32170a; }
@@ -45,12 +46,23 @@ button, a { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
 /* ---------- Frame 2 (1:2) — invitation body ---------- */
-.details { display: none; position: relative; width: 390px; height: 6428px; overflow: hidden; background: #fff; color: #000; }
+/* Behind the pages: what shows through while a covered page fades out. */
+.details { display: none; width: 390px; background: #1d0e07; color: #000; }
 .prototype.is-opened .details { display: block; }
 .prototype.is-opened .cover { display: none; }
 .layer { position: absolute; display: block; max-width: none; }
 .bg-cream { left: 0; width: 390px; background: var(--cream); }
-.bg-brown { left: 0; top: 2398px; width: 390px; height: 4030px; background: var(--brown); }
+
+/* Pages. Each is a window onto the 390 x 6428 artboard: .page-inner is the whole artboard shifted up by --y.
+   script.js makes every page sticky once its bottom reaches the viewport bottom, so the next page slides in
+   over it while it fades out. */
+.page { position: relative; height: var(--h); overflow: clip; }
+.page.bg-white { background: #fff; }
+.page.bg-brown { background: var(--brown); }
+.page-inner { position: absolute; top: calc(-1 * var(--y)); left: 0; width: 390px; height: 6428px; }
+.details.is-stacked .page { position: sticky; will-change: transform, opacity; }
+/* The last page has nothing sliding over it; at least a full screen tall so it fully covers the page before. */
+.details.is-stacked .page:last-child { min-height: 100lvh; }
 .quote-photo { left: 0; top: 564px; width: 390px; height: 681px; object-fit: cover; object-position: bottom; }
 .curve { left: -126px; width: 641px; height: 252px; }
 .rumah-gadang { left: -23px; top: 223px; width: 669px; height: 446px; object-fit: cover; opacity: .15; }

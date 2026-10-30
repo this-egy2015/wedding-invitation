@@ -11,6 +11,18 @@ Melanjutkan `notes/2026-10-30-codex-figma-frame-2.md`. Fokus: tampilan sama pers
 - Font: Poppins (angka countdown) dan Montserrat (jam, input) ditambahkan sesuai Figma.
 - Cover Frame 1: bouquet sekarang memakai kotak rotasi Figma (sebelumnya meleset sekitar 8–12px), hexagon diposisikan di `left: 64.77px`, dan jarak baris pesan 21px (box Figma 42px untuk 2 baris).
 
+## Transisi antar halaman (ditambahkan setelah klarifikasi pemilik)
+
+Frame 2 sebenarnya terdiri dari beberapa halaman. Saat di-scroll, halaman berikutnya slide masuk dan halaman sebelumnya fade out.
+
+- Artboard dipotong menjadi 8 `<section class="page">` di seam desain: hero 0, quote 564, couple 1190, event 2398, location 3460, gallery 4290, rsvp 4890, gift 5870 (sampai 6428).
+- Setiap `.page` adalah jendela ke artboard: `.page-inner` berisi artboard penuh yang digeser `top: -var(--y)`. Jadi semua `top`/`left` tetap koordinat Figma. Layer yang melintasi seam (curve cream, rumah gadang) diulang di kedua halaman.
+- `script.js` membuat halaman `sticky` dengan `top = min(0, tinggi viewport - tinggi halaman)`. Halaman menempel saat bagian bawahnya mencapai bawah layar, lalu halaman berikutnya naik menutupinya. Halaman yang tertutup: opacity 1→0, scale 1→0.92, plus bayangan di tepi atas halaman yang masuk. Progresnya mengikuti posisi scroll, bisa maju dan mundur.
+- Posisi dihitung dari layout (`--y` + sticky clamp), bukan `getBoundingClientRect`, agar tidak terpengaruh transform sendiri.
+- Halaman terakhir diberi `min-height: 100lvh` agar bisa menutup halaman sebelumnya sepenuhnya (tambahan ruang cokelat di bawah kartu gift).
+- Jika `prefers-reduced-motion` aktif, halaman tidak sticky (scroll biasa).
+- `.prototype` memakai `overflow: clip`, bukan `hidden`, karena `hidden` membuatnya menjadi scroll container dan sticky jadi tidak berfungsi.
+
 ## Verifikasi
 
 - Chrome headless 390 x 6428 dibandingkan per piksel dengan `get_screenshot` node `1:2`. Rata-rata selisih per pita 200px: 0–5 (skala 0–255) untuk hampir semua bagian. Pengecualian: nama script (font pengganti) dan pita galeri (karena animasi).

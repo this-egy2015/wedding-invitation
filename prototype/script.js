@@ -7,8 +7,52 @@ function openInvitation() {
   prototype.classList.add("is-opened");
   details.setAttribute("aria-hidden", "false");
   window.scrollTo(0, 0);
+  layoutPages();
 }
 document.querySelector(".open-button").addEventListener("click", openInvitation);
+
+// Page transitions: a page sticks once its bottom reaches the viewport bottom (or its top reaches the viewport
+// top, if it is shorter than the viewport). The next page then slides in over it, and the covered page fades
+// and shrinks slightly. Progress comes from scroll position, so the effect follows the finger in both directions.
+const pages = [...details.querySelectorAll(".page")];
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+let pageFrame = 0;
+
+function layoutPages() {
+  const stacked = !reducedMotion.matches;
+  details.classList.toggle("is-stacked", stacked);
+  const viewport = window.innerHeight;
+  for (const page of pages) {
+    page.flowTop = parseFloat(page.style.getPropertyValue("--y"));
+    const height = page.offsetHeight;
+    page.stickTop = Math.min(0, viewport - height);
+    page.visibleHeight = Math.min(height, viewport);
+    page.style.top = stacked ? `${page.stickTop}px` : "";
+    // Shrink around the middle of what is on screen, not the middle of the whole (possibly tall) page.
+    page.style.transformOrigin = `50% ${page.visibleHeight / 2 - page.stickTop}px`;
+  }
+  updatePages();
+}
+
+function updatePages() {
+  pageFrame = 0;
+  const stacked = details.classList.contains("is-stacked");
+  const detailsTop = details.getBoundingClientRect().top;
+  pages.forEach((page, i) => {
+    const next = pages[i + 1];
+    // Layout position of the next page (its flow position, clamped by sticky), ignoring our own transforms.
+    const nextTop = next && Math.max(detailsTop + next.flowTop, next.stickTop);
+    const cover = stacked && next ? Math.min(1, Math.max(0, 1 - nextTop / page.visibleHeight)) : 0;
+    page.style.opacity = cover ? String(1 - cover) : "";
+    page.style.transform = cover ? `scale(${1 - 0.08 * cover})` : "";
+    page.style.visibility = cover >= 1 ? "hidden" : "";
+    if (next) next.style.boxShadow = cover > 0 && cover < 1 ? `0 -18px 36px rgb(0 0 0 / ${0.4 * Math.sin(Math.PI * cover)})` : "";
+  });
+}
+
+window.addEventListener("scroll", () => { pageFrame ||= requestAnimationFrame(updatePages); }, { passive: true });
+window.addEventListener("resize", layoutPages);
+reducedMotion.addEventListener("change", layoutPages);
 if (new URLSearchParams(window.location.search).has("open")) openInvitation();
 
 let toastTimer;
