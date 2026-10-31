@@ -4,11 +4,12 @@ import { z } from "zod";
 import { db } from "@/db";
 import { guests, rsvps } from "@/db/schema";
 import { env } from "@/env";
+import { invitationPath } from "@/lib/invitation-url";
 
 export const GUEST_PAGE_SIZE = 20;
 
 export const guestLink = (slug: string, shareToken: string) =>
-  `${env.SITE_URL}/invite/${slug}?to=${encodeURIComponent(shareToken)}`;
+  `${env.SITE_URL}${invitationPath(slug, shareToken)}`;
 
 const guestWithRsvp = {
   id: guests.id,

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { invitations } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
+import { isPublicInvitationSlug } from "@/lib/invitation-url";
 import { templates, type TemplateId } from "@/templates";
 import { contentFromFormData, contentSchema, formatIssues } from "./content";
 import { getOwnedInvitation, invitationTag } from "./queries";
@@ -20,7 +21,8 @@ const createSchema = z.object({
     .toLowerCase()
     .min(3, "Slug minimal 3 karakter")
     .max(60, "Slug maksimal 60 karakter")
-    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Slug hanya huruf kecil, angka, dan tanda hubung"),
+    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Slug hanya huruf kecil, angka, dan tanda hubung")
+    .refine(isPublicInvitationSlug, "Slug ini dicadangkan untuk halaman aplikasi, pilih slug lain"),
   templateId: z.enum(Object.keys(templates) as [TemplateId, ...TemplateId[]]),
 });
 

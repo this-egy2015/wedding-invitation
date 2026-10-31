@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { invitations } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
+import { isPublicInvitationSlug } from "@/lib/invitation-url";
 
 export const invitationTag = (slug: string) => `invitation:${slug}`;
 
@@ -33,6 +34,7 @@ export async function listOwnedInvitations() {
 
 /** Public, cached by slug. Invalidated via updateTag(invitationTag(slug)) on publish/unpublish. */
 export function getPublishedInvitation(slug: string) {
+  if (!isPublicInvitationSlug(slug)) return Promise.resolve(null);
   return unstable_cache(
     async () => {
       const [row] = await db

@@ -4,183 +4,163 @@ import { formatEventDate, formatEventTime, zonedTimeToUtc } from "@/lib/time";
 import type { TemplateProps } from "../types";
 import { Countdown } from "./Countdown";
 import { CoverGate } from "./CoverGate";
+import { Gallery } from "./Gallery";
 import { RsvpForm } from "./RsvpForm";
+import styles from "./classic.module.css";
+import pattern from "./assets/minang-pattern.png";
+import house from "./assets/rumah-gadang.png";
+import leaves from "./assets/gold-leaves.png";
+import flowers from "./assets/flowers.png";
+import arch from "./assets/arch-frame.svg";
+import curve from "./assets/curve.svg";
 
 type Content = TemplateProps["content"];
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="font-serif text-3xl text-gold">{children}</h2>;
-}
-
-function EventCard({ title, event, timezone }: { title: string; event: Content["akad"]; timezone: string }) {
-  const time = event.endsAt
-    ? `${formatEventTime(event.startsAt, timezone)} – ${formatEventTime(event.endsAt, timezone)}`
-    : `${formatEventTime(event.startsAt, timezone)} – selesai`;
-
+function Person({ person, role }: { person: Content["bride"]; role: string }) {
   return (
-    <div className="space-y-2 rounded-2xl bg-white/70 p-6">
-      <h3 className="font-serif text-2xl">{title}</h3>
-      <p className="font-medium">{formatEventDate(event.startsAt, timezone)}</p>
-      <p className="text-sm">{time}</p>
-      <p className="pt-2 font-medium">{event.venue}</p>
-      <p className="text-sm text-neutral-600">{event.address}</p>
-      {event.mapsUrl && (
-        <a
-          href={event.mapsUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-2 inline-block rounded-full border border-ink px-4 py-1.5 text-sm"
-        >
-          Buka Google Maps
-        </a>
+    <div className={styles.person}>
+      {person.photoUrl && (
+        <div className={styles.portrait}>
+          <img className={styles.archFrame} src={arch.src} alt="" />
+          <div className={styles.archPhoto}>
+            <Image src={person.photoUrl} alt={person.fullName} fill sizes="303px" className={styles.photo} />
+          </div>
+          <img className={styles.portraitLeaves} src={leaves.src} alt="" />
+        </div>
       )}
+      <h3>{person.fullName}</h3>
+      <p>{role} dari {person.parents}</p>
+      {person.instagram && <a href={`https://instagram.com/${encodeURIComponent(person.instagram)}`} target="_blank" rel="noreferrer">@{person.instagram}</a>}
     </div>
   );
 }
 
-function Person({ person, role }: { person: Content["groom"]; role: string }) {
+function EventCard({ title, event, timezone }: { title: string; event: Content["akad"]; timezone: string }) {
   return (
-    <div className="flex flex-col items-center gap-2">
-      {person.photoUrl && (
-        <div className="relative size-40 overflow-hidden rounded-full border-4 border-white shadow">
-          <Image src={person.photoUrl} alt={person.fullName} fill sizes="160px" className="object-cover" />
-        </div>
-      )}
-      <h3 className="font-serif text-3xl">{person.fullName}</h3>
-      <p className="text-sm text-neutral-600">
-        {role} dari {person.parents}
+    <article className={styles.eventCard}>
+      <img className={styles.eventFlowers} src={flowers.src} alt="" />
+      <h3>{title}</h3>
+      <p className={styles.eventDate}>{formatEventDate(event.startsAt, timezone)}</p>
+      <p className={styles.eventVenue}>{event.venue}</p>
+      <p className={styles.eventAddress}>{event.address}</p>
+      <p className={styles.eventTime}>
+        {formatEventTime(event.startsAt, timezone)}
+        {event.endsAt && ` – ${formatEventTime(event.endsAt, timezone)}`}
       </p>
-      {person.instagram && (
-        <a href={`https://instagram.com/${person.instagram}`} target="_blank" rel="noreferrer" className="text-sm text-gold">
-          @{person.instagram}
-        </a>
-      )}
-    </div>
+      {event.mapsUrl && <a className={styles.button} href={event.mapsUrl} target="_blank" rel="noreferrer">Maps</a>}
+    </article>
+  );
+}
+
+function Location({ event }: { event: Content["akad"] }) {
+  // Maps belong to the event content, never to a static screenshot from another invitation.
+  const map = `https://maps.google.com/maps?q=${encodeURIComponent(`${event.venue}, ${event.address}`)}&output=embed`;
+  return (
+    <figure className={styles.location}>
+      <iframe src={map} title={`Peta lokasi ${event.venue}`} loading="lazy" referrerPolicy="no-referrer" />
+      <figcaption><strong>{event.venue}</strong><p>{event.address}</p></figcaption>
+    </figure>
   );
 }
 
 export function ClassicTemplate({ content, guest, token, wishes, preview }: TemplateProps) {
-  const coupleName = `${content.groom.nickname} & ${content.bride.nickname}`;
+  const coupleName = `${content.bride.nickname} & ${content.groom.nickname}`;
   const guestName = guest ? [guest.name, guest.partnerName].filter(Boolean).join(" & ") : null;
-  const countdownTarget = zonedTimeToUtc(content.akad.startsAt, content.timezone).getTime();
-  const mapsEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(content.resepsi.address)}&output=embed`;
-
   return (
     <CoverGate
       coupleName={coupleName}
-      // Content published before these fields existed has no key at all, hence `||`.
       title={content.coverTitle || "Maimbau Baralek"}
       guestName={guestName}
       musicUrl={content.musicUrl}
-      coverImage={<Image src={content.coverImageUrl} alt="" fill priority sizes="100vw" className="object-cover" />}
-      portraitImage={
-        <Image src={content.coverPortraitUrl || content.coverImageUrl} alt="" fill priority sizes="256px" className="object-cover" />
-      }
+      coverImage={<Image src={content.coverImageUrl} alt="" fill priority sizes="(max-width: 390px) 100vw, 390px" className={styles.photo} />}
+      portraitImage={<Image src={content.coverPortraitUrl || content.coverImageUrl} alt={coupleName} fill priority sizes="256px" className={styles.photo} />}
     >
-      <main className="mx-auto max-w-md bg-ivory text-center text-ink">
-        <section className="relative flex min-h-dvh flex-col items-center justify-end overflow-hidden pb-16">
-          <Image src={content.coverImageUrl} alt={coupleName} fill sizes="(max-width: 448px) 100vw, 448px" className="object-cover" />
-          <div className="absolute inset-0 bg-linear-to-t from-ivory via-ivory/40 to-transparent" />
-          <div className="relative z-10 px-6">
-            <p className="text-xs tracking-[0.3em] uppercase">The Wedding of</p>
-            <h1 className="mt-2 font-serif text-5xl">{coupleName}</h1>
-            <p className="mt-3">{formatEventDate(content.akad.startsAt, content.timezone)}</p>
-          </div>
-        </section>
-
-        <section className="space-y-6 px-6 py-12">
-          <SectionTitle>Menuju Hari Bahagia</SectionTitle>
-          <Countdown target={countdownTarget} />
+      <div className={styles.details}>
+        <section className={styles.hero} data-section="hero">
+          <div className={styles.heroPattern}><img src={pattern.src} alt="" /></div>
+          <img className={styles.heroHouse} src={house.src} alt="" />
+          <p className={styles.heroKicker}>PERNIKAHAN</p>
+          <h2 className={styles.heroNames}>{content.bride.nickname}<br />&amp;<br />{content.groom.nickname}</h2>
+          <p className={styles.heroDate}>{formatEventDate(content.resepsi.startsAt, content.timezone)}</p>
+          <Countdown target={zonedTimeToUtc(content.resepsi.startsAt, content.timezone).getTime()} />
         </section>
 
         {content.quote.text && (
-          <section className="px-8 py-12">
-            <p className="font-serif text-xl leading-relaxed italic">“{content.quote.text}”</p>
-            {content.quote.source && <p className="mt-4 text-sm text-neutral-600">{content.quote.source}</p>}
+          <section className={styles.quote} data-section="quote">
+            <Image src={content.coverImageUrl} alt="" fill sizes="390px" className={styles.photo} />
+            <img className={styles.quoteTopCurve} src={curve.src} alt="" />
+            <img className={styles.quoteHouse} src={house.src} alt="" />
+            <blockquote className={styles.quoteCard}>
+              <p>“{content.quote.text}”</p>
+              {content.quote.source && <cite>{content.quote.source}</cite>}
+            </blockquote>
+            <img className={styles.quoteLeavesTop} src={leaves.src} alt="" />
+            <img className={styles.quoteLeavesBottom} src={leaves.src} alt="" />
+            <img className={styles.quoteBottomCurve} src={curve.src} alt="" />
           </section>
         )}
 
-        <section className="space-y-10 bg-sand/50 px-6 py-14">
-          <SectionTitle>Mempelai</SectionTitle>
-          <Person person={content.groom} role="Putra" />
-          <p className="font-serif text-4xl text-gold">&</p>
+        <section className={styles.couple} data-section="couple">
+          <h2>Assalamualaikum wr. wb.</h2>
+          <p className={styles.coupleIntro}>Dengan memohon rahmat dan ridho Allah SWT, kami dengan penuh kebahagiaan mengundang Bapak/Ibu/Saudara/i untuk hadir dan memberikan doa restu pada acara pernikahan kami.</p>
           <Person person={content.bride} role="Putri" />
+          <p className={styles.ampersand}>&amp;</p>
+          <Person person={content.groom} role="Putra" />
         </section>
 
-        <section className="space-y-6 px-6 py-14">
-          <SectionTitle>Rangkaian Acara</SectionTitle>
+        <section className={styles.events} data-section="event">
+          <div className={styles.eventPattern}><img src={pattern.src} alt="" /></div>
+          <h2>Acara Pernikahan</h2>
+          <p className={styles.eventIntro}>Tanpa mengurangi rasa hormat, kami mengundang Bapak/Ibu untuk dapat hadir pada acara pernikahan kami yang insyaAllah akan dilaksanakan pada:</p>
           <EventCard title="Akad" event={content.akad} timezone={content.timezone} />
           <EventCard title="Resepsi" event={content.resepsi} timezone={content.timezone} />
         </section>
 
-        <section className="space-y-4 px-6 pb-14">
-          <SectionTitle>Lokasi</SectionTitle>
-          <iframe
-            src={mapsEmbed}
-            title={`Peta lokasi ${content.resepsi.venue}`}
-            loading="lazy"
-            referrerPolicy="no-referrer"
-            className="h-64 w-full rounded-2xl border-0"
-          />
+        <section className={styles.locations} data-section="location" aria-label="Lokasi acara">
+          <Location event={content.akad} />
+          <Location event={content.resepsi} />
         </section>
 
         {content.galleryUrls.length > 0 && (
-          <section className="space-y-6 bg-sand/50 px-6 py-14">
-            <SectionTitle>Galeri</SectionTitle>
-            <div className="grid grid-cols-2 gap-2">
-              {content.galleryUrls.map((url, i) => (
-                <div key={`${i}-${url}`} className="relative aspect-square overflow-hidden rounded-lg">
-                  <Image src={url} alt={`Foto ${i + 1}`} fill sizes="(max-width: 448px) 50vw, 224px" className="object-cover" />
-                </div>
-              ))}
-            </div>
+          <section className={styles.gallerySection} data-section="gallery">
+            <h2>Momen Kami</h2>
+            <Gallery urls={content.galleryUrls} coupleName={coupleName} />
           </section>
         )}
 
-        <section className="space-y-6 px-6 py-14">
-          <SectionTitle>Konfirmasi Kehadiran</SectionTitle>
-          {preview ? (
-            <p className="text-sm text-neutral-600">Form RSVP tidak aktif di mode preview.</p>
-          ) : guest && token ? (
-            <RsvpForm token={token} guest={guest} />
-          ) : (
-            <p className="text-sm text-neutral-600">Konfirmasi kehadiran tersedia melalui link undangan personal.</p>
-          )}
-        </section>
-
-        <section className="space-y-6 bg-sand/50 px-6 py-14">
-          <SectionTitle>Ucapan & Doa</SectionTitle>
-          {wishes.length === 0 ? (
-            <p className="text-sm text-neutral-600">Belum ada ucapan.</p>
-          ) : (
-            <ul className="max-h-96 space-y-3 overflow-y-auto text-left">
-              {wishes.map((w) => (
-                <li key={w.id} className="rounded-lg bg-white/80 p-4">
-                  <p className="text-sm font-semibold">{[w.name, w.partnerName].filter(Boolean).join(" & ")}</p>
-                  <p className="mt-1 text-sm whitespace-pre-line">{w.wish}</p>
-                </li>
-              ))}
-            </ul>
-          )}
+        <section className={styles.rsvpSection} data-section="rsvp">
+          <p className={styles.rsvpIntro}>Kami mohon kesediaan Bapak/Ibu/Saudara/i untuk mengisi konfirmasi kehadiran di bawah ini.</p>
+          <div className={styles.rsvpCard}>
+            <h2>Konfirmasi Kehadiran</h2>
+            {preview ? <p>Form RSVP tidak aktif di mode preview.</p> : guest && token ? (
+              <RsvpForm key={token} token={token} guest={guest} />
+            ) : <p>Konfirmasi kehadiran tersedia melalui link undangan personal.</p>}
+          </div>
+          <div className={styles.wishes} aria-label="Ucapan tamu" aria-live="polite">
+            {wishes.length === 0 ? <p className={styles.emptyWishes}>Belum ada ucapan.</p> : wishes.map((wish) => (
+              <article key={wish.id}>
+                <h3>{[wish.name, wish.partnerName].filter(Boolean).join(" & ")}</h3>
+                <p>{wish.wish}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         {content.gifts.length > 0 && (
-          <section className="space-y-6 px-6 py-14">
-            <SectionTitle>Tanda Kasih</SectionTitle>
-            <p className="text-sm text-neutral-600">Doa restu Anda adalah hadiah terindah. Jika ingin memberi tanda kasih:</p>
-            {content.gifts.map((g) => (
-              <div key={`${g.bank}-${g.accountNumber}`} className="space-y-1 rounded-2xl bg-white/70 p-5">
-                <p className="font-semibold">{g.bank}</p>
-                <p className="font-mono text-lg">{g.accountNumber}</p>
-                <p className="text-sm">a.n. {g.accountName}</p>
-                <CopyButton value={g.accountNumber} label="Salin Nomor" className="mt-2 rounded-full border border-ink px-4 py-1.5 text-sm" />
+          <section className={styles.gifts} data-section="gift">
+            {content.gifts.map((gift) => (
+              <div className={styles.giftCard} key={`${gift.bank}-${gift.accountNumber}`}>
+                <h2>Tanda Kasih</h2>
+                <p>Doa dan kehadiran Anda merupakan hadiah terindah bagi kami. Bagi yang ingin berbagi tanda kasih, kami menyediakan informasi rekening di bawah ini.</p>
+                <p className={styles.bankName}>{gift.bank}</p>
+                <strong className={styles.accountNumber}>{gift.accountNumber}</strong>
+                <p className={styles.accountName}>{gift.accountName}</p>
+                <CopyButton value={gift.accountNumber} label="Salin Nomor Rekening" className={styles.button} />
               </div>
             ))}
           </section>
         )}
-
-        <footer className="px-6 py-10 font-serif text-2xl">{coupleName}</footer>
-      </main>
+      </div>
     </CoverGate>
   );
 }

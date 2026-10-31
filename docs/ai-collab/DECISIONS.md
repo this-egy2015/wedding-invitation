@@ -1,5 +1,11 @@
 # Keputusan
 
+## 003. URL publik dan pemisahan konten/template (2026-10-31, codex)
+
+**Konteks**: Pemilik meminta `/:idUndangan` dan 404 pada `/`. Halaman demo root sebelumnya mencampur foto contoh dengan dekorasi UI.
+**Keputusan**: `idUndangan` adalah slug publik immutable yang sudah ada; UUID tetap untuk dashboard. Route publik hanya membaca konten published dan memilih UI lewat `templateId`. `/` serta slug tidak ditemukan menampilkan 404 “Undangan tidak ditemukan”. Link lama `/invite/:slug` diarahkan ke URL baru dengan token personal tetap dipertahankan.
+**Konsekuensi**: Link dashboard, pembagian undangan, dan invalidasi RSVP mengikuti URL baru. Nama route internal dicadangkan ketika membuat slug. Dekorasi berada di `src/templates/classic/assets/`; foto pasangan/galeri, peta dan rekening berasal dari konten undangan. Tidak ada impor runtime dari `prototype/` atau form RSVP simulasi. Template dipakai bersama halaman publik dan preview pemilik.
+
 Keputusan desain inti ada di `README.md` → "Keputusan desain". Entri di bawah adalah keputusan baru atau perubahan sesudahnya.
 
 Format:

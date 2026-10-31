@@ -16,7 +16,7 @@ export function NewInvitationForm({ templateOptions }: { templateOptions: { id: 
         </label>
         <input id="slug" name="slug" required placeholder="gaby-afdhal" className="input" />
         <p className="mt-1 text-xs text-neutral-500">
-          Menjadi /invite/&lt;slug&gt;. Tidak bisa diubah setelah dibuat agar link tamu tidak rusak.
+          Menjadi /&lt;slug&gt;. Tidak bisa diubah setelah dibuat agar link tamu tidak rusak.
         </p>
       </div>
       <div>

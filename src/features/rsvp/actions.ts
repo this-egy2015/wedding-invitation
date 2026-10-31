@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { guests, invitations, rsvps } from "@/db/schema";
+import { invitationPath } from "@/lib/invitation-url";
 
 export type RsvpFormState = { ok: boolean; message: string };
 
@@ -20,7 +21,7 @@ const rsvpSchema = z.object({
 });
 
 // No app-level rate limit: each token can only upsert its own single row, and tokens are
-// 128-bit random. Volumetric abuse is handled at the edge (Vercel WAF rule on /invite/*).
+// 128-bit random. Volumetric abuse must be handled at the edge for public invitation POSTs.
 export async function submitRsvpAction(_prev: RsvpFormState, formData: FormData): Promise<RsvpFormState> {
   const parsed = rsvpSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Data RSVP tidak valid" };
@@ -55,6 +56,7 @@ export async function submitRsvpAction(_prev: RsvpFormState, formData: FormData)
 
   if ("error" in result && typeof result.error === "string") return { ok: false, message: result.error };
 
-  revalidatePath(`/invite/${result.slug}`);
+  if (!("slug" in result)) return { ok: false, message: "Konfirmasi belum tersimpan" };
+  revalidatePath(invitationPath(result.slug));
   return { ok: true, message: "Terima kasih, konfirmasi kamu sudah tersimpan" };
 }

@@ -31,7 +31,7 @@ export default async function InvitationsPage() {
                 <div>
                   <p className="font-medium">{couple}</p>
                   <p className="text-sm text-neutral-600">
-                    /invite/{inv.slug} · {STATUS_LABEL[inv.status]}
+                    /{inv.slug} · {STATUS_LABEL[inv.status]}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -45,7 +45,7 @@ export default async function InvitationsPage() {
                     Tamu
                   </Link>
                   {inv.status === "published" && (
-                    <a href={`${env.SITE_URL}/invite/${inv.slug}`} target="_blank" rel="noreferrer" className="btn-secondary">
+                    <a href={`${env.SITE_URL}/${inv.slug}`} target="_blank" rel="noreferrer" className="btn-secondary">
                       Lihat
                     </a>
                   )}

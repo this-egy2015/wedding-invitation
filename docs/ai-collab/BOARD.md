@@ -4,10 +4,13 @@
 
 | Agen | Branch | Tugas | File yang disentuh |
 |---|---|---|---|
-| — | — | (kosong) | — |
+| — | — | Tidak ada tugas aktif | — |
 
 ## Handoff terakhir
 
+- **2026-10-31, codex**: Carousel “Momen Kami” bergerak otomatis berulang dengan kecepatan prototype, tanpa tombol/scrollbar tambahan. Koreksi terakhir: berhenti hanya saat jari/mouse ditahan, langsung lanjut saat dilepas; hover, fokus, dan wheel tidak menghentikan autoplay. Native swipe dan drag mouse tetap bisa menggeser foto. Typecheck, unit test, build, dan smoke browser termasuk tahan setelah swipe serta lanjut tanpa delay lulus. Branch `codex/gallery-autoscroll`; lihat `notes/2026-10-31-codex-gallery-autoscroll.md`.
+- **2026-10-31, codex**: Selesai pada branch `codex/invitation-route-template`: undangan publik di `/:idUndangan` (slug), root/home/slug tidak terbit memberi 404. Template Classic memakai UI Frame 1/2 dengan ornamen terpisah dari konten, animasi cover React/WAAPI, serta RSVP database. Demo lokal `/demo-gaby-afdhal` tersedia; undangan lama tidak diubah. Typecheck, 6 unit test, build, dan smoke test browser mobile lulus. Lihat `notes/2026-10-31-codex-invitation-route-template.md`. Menggantikan pendekatan demo root pada entri berikut.
+- **2026-10-31, codex**: `/` sekarang menampilkan undangan publik berbasis prototype Frame 1/2 tanpa query data atau redirect auth. `/login` tetap hanya dapat diakses lewat URL langsung dan diberi `noindex`; dashboard tetap memakai `requireUser()`. Lihat `notes/2026-10-31-codex-public-root-invitation.md`.
 - **2026-10-31, codex**: Keluar cover sekarang memakai Web Animations API 1.500 ms, bukan `transitionend`/timeout yang dapat terpanggil oleh elemen anak. Cover hanya disembunyikan saat animasi cover selesai. Lihat `notes/2026-10-31-codex-cover-web-animation.md`.
 - **2026-10-31, codex**: Animasi cover overlay memakai 1,5 detik linear dan menunggu dua frame render sebelum mulai, agar Frame 1 tidak melompat ketika keluar. Lihat `notes/2026-10-31-codex-smooth-cover-overlay.md`.
 - **2026-10-31, codex**: Animasi cover overlay sekarang memakai `translateY` saja; posisi horizontal dipisahkan lewat `left`, sehingga Frame 1 bergerak lurus vertikal ke atas. Lihat `notes/2026-10-31-codex-vertical-cover-overlay.md`.

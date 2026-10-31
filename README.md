@@ -25,6 +25,8 @@ Setelah mengubah `src/db/schema.ts`, jalankan `npm run db:generate` untuk membua
 
 Supabase Auth: aktifkan Email provider (magic link), set **Site URL** = `SITE_URL`, dan tambahkan `${SITE_URL}/auth/callback` ke Redirect URLs.
 
+Pada database lokal workspace ini tersedia `/demo-gaby-afdhal` untuk melihat template dengan foto dari prototype. Data/foto demo berada di database dan storage lokal, bukan otomatis dibuat oleh migrasi. Rekening di demo adalah contoh.
+
 Setelah migrate, pastikan di Supabase Table Editor ketiga tabel (`invitations`, `guests`, `rsvps`) berstatus **RLS enabled**. Jika tidak, token tamu bisa terbaca lewat Data API memakai anon key.
 
 ## Struktur
@@ -32,7 +34,8 @@ Setelah migrate, pastikan di Supabase Table Editor ketiga tabel (`invitations`, 
 ```
 src/
   app/                      routes (PRD §3)
-    invite/[slug]           halaman publik, ?to=<token> untuk personalisasi
+    [idUndangan]            halaman publik berdasarkan slug, ?to=<token> untuk personalisasi
+    invite/[slug]           redirect kompatibilitas ke /:idUndangan
     dashboard/invitations   list, new, [id]/edit, [id]/preview, [id]/guests, [id]/guests/[guestId]
   features/
     invitations/            content schema (Zod), queries (ownership guard + public cache), actions
@@ -49,9 +52,11 @@ src/
 - **Ownership**: Drizzle konek sebagai role `postgres` dan tidak terkena RLS. Semua akses dashboard melewati `getOwnedInvitation()` (filter `owner_id`). Proxy hanya me-refresh session.
 - **RLS tanpa policy** di semua tabel, agar Data API Supabase (anon/authenticated) tidak bisa membaca data.
 - **Caching publik**: konten published di-cache per slug (`unstable_cache` + tag). `publish`/`unpublish` memanggil `updateTag`. Tamu dan ucapan dibaca per request, sehingga token tidak pernah masuk cache.
-- **Token tamu**: 128-bit random (`base64url`, 22 karakter). `Referrer-Policy: no-referrer` di `/invite/*` agar token tidak bocor ke Maps/R2.
+- **Route publik**: `/:idUndangan` memakai slug immutable (contoh `/demo-fajar-nadya`), bukan UUID internal dashboard atau ID template. `/`, `/home`, dan slug tidak terbit/tidak dikenal menampilkan 404 “Undangan tidak ditemukan”. `/invite/:slug` mengarahkan ke route baru sambil mempertahankan token. `/login` hanya diakses lewat URL langsung, tanpa tautan dari undangan.
+- **Token tamu**: 128-bit random (`base64url`, 22 karakter). `Referrer-Policy: no-referrer` di seluruh route agar token tidak bocor ke Maps/R2.
 - **Slug immutable** setelah dibuat, agar link tamu yang sudah dibagikan tidak rusak.
 - **Template di kode, bukan tabel**: `invitations.template_id` + `template_version` merujuk ke `src/templates/index.ts`. Menambah template tidak mengubah skema DB.
+- **UI dan konten terpisah**: template `classic` mengikuti Frame 1/2 prototype, dengan CSS Module dan komponen React. Ornamen berada di `src/templates/classic/assets/` ([inventaris](src/templates/classic/assets/README.md)); foto dan informasi pasangan berasal dari konten slug yang dibuka. Prototype HTML/JS bukan runtime aplikasi. Cover meluncur vertikal 1,5 detik lalu dilepas; bagian undangan memakai scroll biasa.
 - **Status `pending`** tidak disimpan; tamu tanpa baris `rsvps` dianggap pending.
 - **Waktu acara** disimpan sebagai wall-clock lokal + zona IANA (`timezone`). Countdown dihitung di server ke epoch absolut.
 - **Kuota**: divalidasi di server dalam transaksi `FOR UPDATE`. Kuota tidak bisa diturunkan di bawah jumlah yang sudah dikonfirmasi.
@@ -59,8 +64,7 @@ src/
 ## Belum dikerjakan (sengaja / butuh keputusan)
 
 - **Upload ke R2**: konten saat ini menerima URL yang harus berada di bawah `R2_PUBLIC_URL`. Upload (presigned URL + verifikasi ukuran/tipe) belum dibuat.
-- **Rate limiting**: belum ada di level aplikasi. Rekomendasi: aturan Vercel WAF untuk `POST /invite/*`. RSVP sudah terbatas satu baris per token.
-- **Desain Figma**: baru layar cover (Figma node `5:2`) yang sudah diterapkan ke template `classic`. Bagian setelah "Buka Undangan" (mempelai, acara, galeri, RSVP, ucapan, hadiah) masih layout dasar dan menunggu frame Figma berikutnya.
+- **Rate limiting**: belum ada di level aplikasi. Aturan WAF perlu mencakup POST RSVP pada route publik `/:idUndangan`. RSVP sudah terbatas satu baris per token.
 - **shadcn/ui**: dashboard masih Tailwind biasa. Jalankan `npx shadcn@latest init` bila ingin migrasi.
 - Backup DB dan monitoring (Phase 6): gunakan PITR/backup Supabase.
 

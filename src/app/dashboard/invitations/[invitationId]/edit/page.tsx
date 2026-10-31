@@ -22,7 +22,7 @@ export default async function EditInvitationPage({ params }: { params: Promise<{
         <div>
           <h1 className="text-2xl font-semibold">Edit Undangan</h1>
           <p className="text-sm text-neutral-600">
-            /invite/{invitation.slug} · status: {invitation.status}
+            /{invitation.slug} · status: {invitation.status}
             {invitation.status === "published" && hasUnpublishedChanges && " · ada perubahan draft yang belum dipublikasikan"}
           </p>
         </div>

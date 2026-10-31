@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Inter, Yellowtail } from "next/font/google";
+import { Cormorant_Garamond, Inter, Montserrat, Poppins, Yellowtail } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -10,6 +10,8 @@ const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
 });
 const yellowtail = Yellowtail({ subsets: ["latin"], weight: "400", variable: "--font-yellowtail" });
+const poppins = Poppins({ subsets: ["latin"], weight: ["500", "700"], variable: "--font-poppins" });
+const montserrat = Montserrat({ subsets: ["latin"], weight: "400", variable: "--font-montserrat" });
 
 export const metadata: Metadata = {
   title: "Wedding Invitation",
@@ -17,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${inter.variable} ${cormorant.variable} ${yellowtail.variable}`}>
+    <html lang="id" className={`${inter.variable} ${cormorant.variable} ${yellowtail.variable} ${poppins.variable} ${montserrat.variable}`}>
       <body className="font-sans text-neutral-900 antialiased">{children}</body>
     </html>
   );

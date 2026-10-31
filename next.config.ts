@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
     return [
       {
         // Guest token lives in the query string; keep it out of Referer sent to Maps/R2/etc.
-        source: "/invite/:path*",
+        source: "/:path*",
         headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
       },
     ];

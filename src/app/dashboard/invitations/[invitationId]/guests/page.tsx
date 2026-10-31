@@ -28,7 +28,7 @@ export default async function GuestsPage({ params, searchParams }: Props) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Daftar Tamu</h1>
-          <p className="text-sm text-neutral-600">/invite/{invitation.slug}</p>
+          <p className="text-sm text-neutral-600">/{invitation.slug}</p>
         </div>
         <Link href={`/dashboard/invitations/${invitation.id}/edit`} className="btn-secondary">
           Kembali ke Undangan
