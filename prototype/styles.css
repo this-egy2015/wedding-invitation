@@ -18,11 +18,11 @@ body { min-width: 320px; min-height: 100vh; margin: 0; display: grid; place-item
 body:has(.prototype.is-opened) { place-items: start center; background: var(--brown); }
 button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
-/* clip, not hidden: hidden would make .prototype a scroll container and break the sticky pages. */
+/* Keep the fixed-width Figma artboard clipped without creating a nested scroll container. */
 .prototype { width: 390px; overflow: clip; }
 
 /* ---------- Frame 1 (5:2) — cover gate ---------- */
-.invitation { position: relative; isolation: isolate; width: 390px; height: 799px; overflow: hidden; background: #32170a; }
+.invitation { position: relative; isolation: isolate; width: 390px; height: 100vh; height: 100dvh; min-height: 799px; overflow: hidden; background: #32170a; }
 .background, .glow, .polygon, .bouquet, .scrim { position: absolute; pointer-events: none; }
 .background { z-index: -4; top: -305px; left: -269px; width: 927px; height: 1159px; max-width: none; object-fit: cover; }
 .glow { z-index: -3; top: 396px; left: -182px; width: 812px; height: 529px; }
@@ -44,25 +44,20 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .open-button:hover { filter: brightness(1.08); }
 .open-button:active { transform: scale(.97); }
 :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.prototype.is-opened .cover { position: fixed; z-index: 20; top: 0; left: calc(50% - 195px); will-change: transform; }
 
 /* ---------- Frame 2 (1:2) — invitation body ---------- */
 /* Behind the pages: what shows through while a covered page fades out. */
 .details { display: none; width: 390px; background: #1d0e07; color: #000; }
 .prototype.is-opened .details { display: block; }
-.prototype.is-opened .cover { display: none; }
 .layer { position: absolute; display: block; max-width: none; }
 .bg-cream { left: 0; width: 390px; background: var(--cream); }
 
-/* Pages. Each is a window onto the 390 x 6428 artboard: .page-inner is the whole artboard shifted up by --y.
-   script.js makes every page sticky once its bottom reaches the viewport bottom, so the next page slides in
-   over it while it fades out. */
+/* Pages are windows onto the 390 x 6428 artboard; the document scrolls through them normally. */
 .page { position: relative; height: var(--h); overflow: clip; }
 .page.bg-white { background: #fff; }
 .page.bg-brown { background: var(--brown); }
 .page-inner { position: absolute; top: calc(-1 * var(--y)); left: 0; width: 390px; height: 6428px; }
-.details.is-stacked .page { position: sticky; will-change: transform, opacity; }
-/* The last page has nothing sliding over it; at least a full screen tall so it fully covers the page before. */
-.details.is-stacked .page:last-child { min-height: 100lvh; }
 .quote-photo { left: 0; top: 564px; width: 390px; height: 681px; object-fit: cover; object-position: bottom; }
 .curve { left: -126px; width: 641px; height: 252px; }
 .rumah-gadang { left: -23px; top: 223px; width: 669px; height: 446px; object-fit: cover; opacity: .15; }
