@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, like, isNotNull, or } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
@@ -29,7 +29,7 @@ const guestWithRsvp = {
 export async function listGuests(invitationId: string, search: string, page: number) {
   const where = and(
     eq(guests.invitationId, invitationId),
-    search ? or(ilike(guests.name, `%${search}%`), ilike(guests.partnerName, `%${search}%`)) : undefined,
+    search ? or(like(guests.name, `%${search}%`), like(guests.partnerName, `%${search}%`)) : undefined,
   );
 
   const [rows, [{ total }]] = await Promise.all([

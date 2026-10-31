@@ -5,11 +5,9 @@ if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 
 export default defineConfig({
   schema: "./src/db/schema.ts",
-  out: "./drizzle",
-  dialect: "postgresql",
-  schemaFilter: ["public"],
+  out: "./drizzle/sqlite",
+  dialect: "sqlite",
   dbCredentials: {
-    // Use the direct connection (port 5432) for migrations, not the transaction pooler.
-    url: process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL!,
+    url: process.env.SQLITE_PATH ?? "./data/wedding.sqlite",
   },
 });

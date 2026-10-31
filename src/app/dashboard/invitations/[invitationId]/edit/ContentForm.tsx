@@ -48,6 +48,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
       <Field name={`${key}.fullName`} label="Nama lengkap" defaultValue={initial?.[key].fullName} required />
       <Field name={`${key}.nickname`} label="Nama panggilan" defaultValue={initial?.[key].nickname} required />
       <Field name={`${key}.parents`} label="Putra/Putri dari" defaultValue={initial?.[key].parents} required />
+      <Field name={`${key}.birthOrder`} label="Urutan anak (opsional)" defaultValue={initial?.[key].birthOrder} hint="Contoh: pertama, kedua, bungsu." />
       <Field name={`${key}.instagram`} label="Instagram (tanpa @)" defaultValue={initial?.[key].instagram} />
       <Field name={`${key}.photoUrl`} label="URL foto" type="url" defaultValue={initial?.[key].photoUrl} />
     </Section>
@@ -62,6 +63,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
       <Field name={`${key}.venue`} label="Tempat" defaultValue={initial?.[key].venue} required />
       <Field name={`${key}.address`} label="Alamat" defaultValue={initial?.[key].address} required />
       <Field name={`${key}.mapsUrl`} label="Link Google Maps" type="url" defaultValue={initial?.[key].mapsUrl} />
+      <Field name={`${key}.mapImageUrl`} label="URL gambar peta (opsional)" type="url" defaultValue={initial?.[key].mapImageUrl} />
     </Section>
   );
 
@@ -116,6 +118,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
           <textarea id="quote.text" name="quote.text" rows={3} defaultValue={initial?.quote.text} className="input" />
         </div>
         <Field name="quote.source" label="Sumber" defaultValue={initial?.quote.source} />
+        <Field name="quote.imageUrl" label="URL foto kutipan (opsional)" type="url" defaultValue={initial?.quote.imageUrl} />
       </Section>
 
       {event("akad", "Akad")}
@@ -123,7 +126,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
 
       <Section title="Galeri">
         <label htmlFor="galleryUrls" className="label">
-          URL foto, satu per baris (maks. 20)
+          URL foto, satu per baris (maks. 30)
         </label>
         <textarea
           id="galleryUrls"

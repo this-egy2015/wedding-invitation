@@ -7,5 +7,14 @@ next-env.d.ts
 !.env.example
 .vercel
 
+# Private SQLite data, sidecars, and online backups.
+/data/
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
 # Generated project map; rebuild with graphify when needed.
 graphify-out/

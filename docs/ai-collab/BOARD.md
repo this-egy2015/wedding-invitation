@@ -4,10 +4,14 @@
 
 | Agen | Branch | Tugas | File yang disentuh |
 |---|---|---|---|
-| — | — | Tidak ada tugas aktif | — |
+| — | — | Pekerjaan lokal selesai; push/deploy menunggu akses layanan | — |
 
 ## Handoff terakhir
 
+- **2026-10-31, codex**: Branch `codex/github-seed-vercel`: origin diarahkan ke repo yang diminta; riwayat Git dipertahankan. Seed lengkap `demo-gaby-afdhal` aktif (37 gambar via Supabase Storage, 30 galeri, 4 tamu + 3 ucapan contoh), repeatable tanpa mengganti token/respons lama. Foto kutipan/peta dan urutan anak menjadi konten opsional; validasi origin/path aset diperketat. Typecheck, 14 tes, build, seed ulang dan smoke HTTP lulus. Push tertahan akses repo (`Repository not found` pada akun lokal `egy2015`); percobaan deploy Vercel gagal karena belum login, dan SQLite file lokal/Auth localhost belum cocok untuk Vercel. Lihat `notes/2026-10-31-codex-github-seed-vercel.md`.
+
+- **2026-10-31, codex**: Purge pada branch `codex/purge-legacy-stack`: hapus postgres, motion beserta dependency yang tidak diperlukan, importer sekali pakai, migration/snapshot PostgreSQL lama, serta variabel koneksi lama. Alur DB aktif hanya SQLite; Supabase Auth/storage dan prototype acuan dipertahankan. Typecheck, 12 tes, build, integritas DB, dan smoke route lulus. Lihat `notes/2026-10-31-codex-purge-legacy-stack.md`.
+- **2026-10-31, codex**: Database aplikasi dipindahkan ke SQLite/Drizzle/better-sqlite3 pada branch `codex/sqlite-database`; Supabase tetap untuk Auth/storage. Data lokal 2 undangan + 1 tamu terimpor dan diverifikasi tanpa mengubah PostgreSQL sumber. File privat, akses server-only, constraint/FK, transaksi IMMEDIATE, backup, dan pengecualian artefak deployment aktif. Typecheck, 12 test, build, audit runtime, smoke HTTP ownership/RSVP/publish, dan smoke carousel lulus. Lihat `notes/2026-10-31-codex-sqlite-database.md`.
 - **2026-10-31, codex**: Carousel “Momen Kami” bergerak otomatis berulang dengan kecepatan prototype, tanpa tombol/scrollbar tambahan. Koreksi terakhir: berhenti hanya saat jari/mouse ditahan, langsung lanjut saat dilepas; hover, fokus, dan wheel tidak menghentikan autoplay. Native swipe dan drag mouse tetap bisa menggeser foto. Typecheck, unit test, build, dan smoke browser termasuk tahan setelah swipe serta lanjut tanpa delay lulus. Branch `codex/gallery-autoscroll`; lihat `notes/2026-10-31-codex-gallery-autoscroll.md`.
 - **2026-10-31, codex**: Selesai pada branch `codex/invitation-route-template`: undangan publik di `/:idUndangan` (slug), root/home/slug tidak terbit memberi 404. Template Classic memakai UI Frame 1/2 dengan ornamen terpisah dari konten, animasi cover React/WAAPI, serta RSVP database. Demo lokal `/demo-gaby-afdhal` tersedia; undangan lama tidak diubah. Typecheck, 6 unit test, build, dan smoke test browser mobile lulus. Lihat `notes/2026-10-31-codex-invitation-route-template.md`. Menggantikan pendekatan demo root pada entri berikut.
 - **2026-10-31, codex**: `/` sekarang menampilkan undangan publik berbasis prototype Frame 1/2 tanpa query data atau redirect auth. `/login` tetap hanya dapat diakses lewat URL langsung dan diberi `noindex`; dashboard tetap memakai `requireUser()`. Lihat `notes/2026-10-31-codex-public-root-invitation.md`.
@@ -26,6 +30,10 @@
 - **2026-10-30, claude**: Audit repo selesai, lihat `notes/2026-10-30-claude-audit.md`. Typecheck, test (4/4), dan build lulus. Menambahkan `CLAUDE.md`, aturan bersama di `AGENTS.md`, dan folder ini.
 
 ## Pertanyaan terbuka untuk pemilik repo
+
+- Berikan akses repo `this-egy2015/wedding-invitation` untuk akun GitHub lokal `egy2015`, atau koreksi URL repo.
+- Untuk Vercel, gunakan SQLite remote (Turso/libSQL) atau tetap SQLite lokal di VPS? Masih menunggu jawaban; belum mengubah provider.
+- Login Vercel dan konfigurasi Supabase Auth/asset server produksi belum tersedia; environment saat ini lokal.
 
 - Upload aset ke R2 (presigned URL): kapan dikerjakan, dan siapa (agen mana)?
 - Rate limiting: cukup Vercel WAF, atau perlu di level aplikasi?

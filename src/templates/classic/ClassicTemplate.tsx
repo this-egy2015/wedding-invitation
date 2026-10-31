@@ -29,7 +29,7 @@ function Person({ person, role }: { person: Content["bride"]; role: string }) {
         </div>
       )}
       <h3>{person.fullName}</h3>
-      <p>{role} dari {person.parents}</p>
+      <p>{role}{person.birthOrder && ` ${person.birthOrder}`} dari {person.parents}</p>
       {person.instagram && <a href={`https://instagram.com/${encodeURIComponent(person.instagram)}`} target="_blank" rel="noreferrer">@{person.instagram}</a>}
     </div>
   );
@@ -57,7 +57,11 @@ function Location({ event }: { event: Content["akad"] }) {
   const map = `https://maps.google.com/maps?q=${encodeURIComponent(`${event.venue}, ${event.address}`)}&output=embed`;
   return (
     <figure className={styles.location}>
-      <iframe src={map} title={`Peta lokasi ${event.venue}`} loading="lazy" referrerPolicy="no-referrer" />
+      {event.mapImageUrl ? (
+        <a href={event.mapsUrl || map} target="_blank" rel="noreferrer">
+          <Image src={event.mapImageUrl} alt={`Peta lokasi ${event.venue}`} width={304} height={247} sizes="304px" className={styles.mapImage} />
+        </a>
+      ) : <iframe src={map} title={`Peta lokasi ${event.venue}`} loading="lazy" referrerPolicy="no-referrer" />}
       <figcaption><strong>{event.venue}</strong><p>{event.address}</p></figcaption>
     </figure>
   );
@@ -87,7 +91,7 @@ export function ClassicTemplate({ content, guest, token, wishes, preview }: Temp
 
         {content.quote.text && (
           <section className={styles.quote} data-section="quote">
-            <Image src={content.coverImageUrl} alt="" fill sizes="390px" className={styles.photo} />
+            <Image src={content.quote.imageUrl || content.coverImageUrl} alt="" fill sizes="390px" className={styles.photo} />
             <img className={styles.quoteTopCurve} src={curve.src} alt="" />
             <img className={styles.quoteHouse} src={house.src} alt="" />
             <blockquote className={styles.quoteCard}>

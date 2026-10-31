@@ -13,6 +13,6 @@ Aset dekoratif ini diimpor oleh komponen Next.js, sehingga build menghasilkan UR
 | `countdown-circle.svg` | Lingkaran hitung mundur |
 | `flowers.png` | Bunga pada kartu acara |
 
-Foto cover, potret, galeri, musik, nama, jadwal, lokasi, dan rekening adalah **konten undangan**, berasal dari `InvitationContent`. Tidak ada foto pasangan, screenshot peta, atau rekening demo Figma yang dipakai sebagai fallback. Peta dibentuk dari venue/alamat acara. Galeri dan hadiah yang kosong tidak ditampilkan.
+Foto cover, potret, kutipan, galeri, musik, nama, jadwal, lokasi, dan rekening adalah **konten undangan**, berasal dari `InvitationContent`. Tidak ada foto pasangan, screenshot peta, atau rekening demo Figma yang dipakai sebagai fallback. Peta memakai `event.mapImageUrl` bila diisi; jika kosong, embed dibentuk dari venue/alamat acara. Foto kutipan memakai `quote.imageUrl`, dengan fallback foto cover untuk konten lama. Galeri dan hadiah yang kosong tidak ditampilkan.
 
 `prototype/script.js` hanya untuk prototype HTML. Runtime Next menggunakan `CoverGate` (animasi overlay selesai lewat Web Animations API), `Countdown` (timer dengan cleanup), `RsvpForm` (server action/database), dan `CopyButton` (clipboard).

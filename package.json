@@ -10,23 +10,26 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --test src/lib/*.test.ts",
+    "test": "node --test src/lib/*.test.ts src/db/*.test.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "node scripts/migrate-db.ts",
+    "db:backup": "node scripts/backup-db.ts",
+    "db:seed": "node scripts/seed-db.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.4",
+    "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.2",
-    "motion": "^12.23.0",
     "next": "^16.4.3",
-    "postgres": "^3.4.7",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "server-only": "^0.0.1",
     "zod": "^4.1.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.0",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^22.18.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",

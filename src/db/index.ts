@@ -1,13 +1,13 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import "server-only";
+import { drizzle } from "drizzle-orm/better-sqlite3";
 import { env } from "@/env";
 import * as schema from "./schema";
+import { openSqlite } from "./sqlite";
 
-// Reuse the connection across dev hot reloads instead of opening a new pool per reload.
-const globalForDb = globalThis as unknown as { sql?: postgres.Sql };
+// Reuse the connection across dev hot reloads.
+const globalForDb = globalThis as unknown as { sqlite?: ReturnType<typeof openSqlite> };
 
-// prepare: false is required by the Supabase transaction pooler.
-const client = globalForDb.sql ?? postgres(env.DATABASE_URL, { prepare: false });
-if (process.env.NODE_ENV !== "production") globalForDb.sql = client;
+const client = globalForDb.sqlite ?? openSqlite(env.SQLITE_PATH);
+if (process.env.NODE_ENV !== "production") globalForDb.sqlite = client;
 
 export const db = drizzle(client, { schema });

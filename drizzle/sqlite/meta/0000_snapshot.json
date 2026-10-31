@@ -1,81 +1,84 @@
 {
-  "id": "8826ec78-58ac-4cb6-a61a-cf05297a5f82",
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "06d9d03c-8e7b-4623-9c40-7e494ff6fcce",
   "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "7",
-  "dialect": "postgresql",
   "tables": {
-    "public.guests": {
+    "guests": {
       "name": "guests",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "default": "gen_random_uuid()"
+          "autoincrement": false
         },
         "invitation_id": {
           "name": "invitation_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "partner_name": {
           "name": "partner_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "allowed_guest_count": {
           "name": "allowed_guest_count",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": 1
         },
         "share_token": {
           "name": "share_token",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         }
       },
       "indexes": {
+        "guests_share_token_unique": {
+          "name": "guests_share_token_unique",
+          "columns": [
+            "share_token"
+          ],
+          "isUnique": true
+        },
         "guests_invitation_id_idx": {
           "name": "guests_invitation_id_idx",
           "columns": [
-            {
-              "expression": "invitation_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
+            "invitation_id"
           ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -94,211 +97,208 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "guests_share_token_unique": {
-          "name": "guests_share_token_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "share_token"
-          ]
-        }
-      },
-      "policies": {},
+      "uniqueConstraints": {},
       "checkConstraints": {
         "guests_allowed_guest_count_range": {
           "name": "guests_allowed_guest_count_range",
           "value": "\"guests\".\"allowed_guest_count\" between 1 and 20"
+        },
+        "guests_token_format": {
+          "name": "guests_token_format",
+          "value": "length(\"guests\".\"share_token\") = 22 and \"guests\".\"share_token\" not glob '*[^A-Za-z0-9_-]*'"
         }
-      },
-      "isRLSEnabled": true
+      }
     },
-    "public.invitations": {
+    "invitations": {
       "name": "invitations",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "default": "gen_random_uuid()"
+          "autoincrement": false
         },
         "owner_id": {
           "name": "owner_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "template_id": {
           "name": "template_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "template_version": {
           "name": "template_version",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "slug": {
           "name": "slug",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "status": {
           "name": "status",
-          "type": "invitation_status",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'draft'"
         },
         "draft_content": {
           "name": "draft_content",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "published_content": {
           "name": "published_content",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "published_at": {
           "name": "published_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         }
       },
       "indexes": {
+        "invitations_slug_unique": {
+          "name": "invitations_slug_unique",
+          "columns": [
+            "slug"
+          ],
+          "isUnique": true
+        },
         "invitations_owner_id_idx": {
           "name": "invitations_owner_id_idx",
           "columns": [
-            {
-              "expression": "owner_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "invitations_owner_id_users_id_fk": {
-          "name": "invitations_owner_id_users_id_fk",
-          "tableFrom": "invitations",
-          "tableTo": "users",
-          "schemaTo": "auth",
-          "columnsFrom": [
             "owner_id"
           ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "isUnique": false
         }
       },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "invitations_slug_unique": {
-          "name": "invitations_slug_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
-        }
-      },
-      "policies": {},
+      "uniqueConstraints": {},
       "checkConstraints": {
+        "invitations_status": {
+          "name": "invitations_status",
+          "value": "\"invitations\".\"status\" in ('draft', 'published', 'unpublished')"
+        },
         "invitations_slug_format": {
           "name": "invitations_slug_format",
-          "value": "\"invitations\".\"slug\" ~ '^[a-z0-9]+(-[a-z0-9]+)*$'"
+          "value": "length(\"invitations\".\"slug\") between 3 and 60 and \"invitations\".\"slug\" not glob '*[^a-z0-9-]*' and \"invitations\".\"slug\" not like '-%' and \"invitations\".\"slug\" not like '%-' and \"invitations\".\"slug\" not like '%--%'"
+        },
+        "invitations_draft_json": {
+          "name": "invitations_draft_json",
+          "value": "\"invitations\".\"draft_content\" is null or json_valid(\"invitations\".\"draft_content\")"
+        },
+        "invitations_published_json": {
+          "name": "invitations_published_json",
+          "value": "\"invitations\".\"published_content\" is null or json_valid(\"invitations\".\"published_content\")"
         }
-      },
-      "isRLSEnabled": true
+      }
     },
-    "public.rsvps": {
+    "rsvps": {
       "name": "rsvps",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "default": "gen_random_uuid()"
+          "autoincrement": false
         },
         "guest_id": {
           "name": "guest_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "status": {
           "name": "status",
-          "type": "rsvp_status",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "attendance_count": {
           "name": "attendance_count",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "wish": {
           "name": "wish",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "is_wish_visible": {
           "name": "is_wish_visible",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": true
         },
         "responded_at": {
           "name": "responded_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "rsvps_guest_id_unique": {
+          "name": "rsvps_guest_id_unique",
+          "columns": [
+            "guest_id"
+          ],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {
         "rsvps_guest_id_guests_id_fk": {
           "name": "rsvps_guest_id_guests_id_fk",
@@ -315,56 +315,31 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "rsvps_guest_id_unique": {
-          "name": "rsvps_guest_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "guest_id"
-          ]
-        }
-      },
-      "policies": {},
+      "uniqueConstraints": {},
       "checkConstraints": {
         "rsvps_attendance_matches_status": {
           "name": "rsvps_attendance_matches_status",
-          "value": "(\"rsvps\".\"status\" = 'attending' and \"rsvps\".\"attendance_count\" >= 1) or (\"rsvps\".\"status\" = 'not_attending' and \"rsvps\".\"attendance_count\" = 0)"
+          "value": "(\"rsvps\".\"status\" = 'attending' and \"rsvps\".\"attendance_count\" between 1 and 20) or (\"rsvps\".\"status\" = 'not_attending' and \"rsvps\".\"attendance_count\" = 0)"
         },
         "rsvps_wish_length": {
           "name": "rsvps_wish_length",
-          "value": "char_length(\"rsvps\".\"wish\") <= 500"
+          "value": "length(\"rsvps\".\"wish\") <= 500"
+        },
+        "rsvps_visibility": {
+          "name": "rsvps_visibility",
+          "value": "\"rsvps\".\"is_wish_visible\" in (0, 1)"
         }
-      },
-      "isRLSEnabled": true
+      }
     }
   },
-  "enums": {
-    "public.invitation_status": {
-      "name": "invitation_status",
-      "schema": "public",
-      "values": [
-        "draft",
-        "published",
-        "unpublished"
-      ]
-    },
-    "public.rsvp_status": {
-      "name": "rsvp_status",
-      "schema": "public",
-      "values": [
-        "attending",
-        "not_attending"
-      ]
-    }
-  },
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
   "views": {},
+  "enums": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
   }
 }

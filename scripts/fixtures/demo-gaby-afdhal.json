@@ -1,0 +1,83 @@
+{
+  "timezone": "Asia/Jakarta",
+  "coverImageUrl": "background.png",
+  "coverPortraitUrl": "polygon-couple.png",
+  "coverTitle": "Maimbau Baralek",
+  "musicUrl": "",
+  "bride": {
+    "fullName": "dr. Gaby Derenski",
+    "nickname": "Gaby",
+    "parents": "Bapak Arwendi dan Ibu Efriyeni AB",
+    "birthOrder": "pertama",
+    "instagram": "",
+    "photoUrl": "figma-1-2/bride-arch.png"
+  },
+  "groom": {
+    "fullName": "Afdhal Aulia, BA.IR",
+    "nickname": "Afdhal",
+    "parents": "Bapak Nasrul dan Ibu Mitra Winda",
+    "birthOrder": "bungsu",
+    "instagram": "",
+    "photoUrl": "figma-1-2/groom-arch.png"
+  },
+  "quote": {
+    "text": "Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari (jenis) dirimu sendiri, agar kamu merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa cinta dan kasih sayang. Sesungguhnya pada yang demikian itu benar-benar terdapat tanda-tanda (kebesaran Allah) bagi kaum yang berpikir.",
+    "source": "Qs. Ar. Rum (21)",
+    "imageUrl": "figma-1-2/quote-photo.png"
+  },
+  "akad": {
+    "startsAt": "2026-11-28T08:00",
+    "endsAt": "",
+    "venue": "Masjid Al-Hakim",
+    "address": "Jl Samudra Belakang Tangsi, Padang Barat",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Masjid+Al-Hakim+Padang",
+    "mapImageUrl": "figma-1-2/map-akad.png"
+  },
+  "resepsi": {
+    "startsAt": "2026-11-29T10:00",
+    "endsAt": "",
+    "venue": "Pangeran Beach Hotel",
+    "address": "Jl. Ir. H. Juanda No. 79, Padang Barat",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Pangeran+Beach+Hotel+Padang",
+    "mapImageUrl": "figma-1-2/map-resepsi.png"
+  },
+  "galleryUrls": [
+    "figma-1-2/gallery/01.jpg",
+    "figma-1-2/gallery/02.jpg",
+    "figma-1-2/gallery/03.jpg",
+    "figma-1-2/gallery/04.jpg",
+    "figma-1-2/gallery/05.jpg",
+    "figma-1-2/gallery/06.jpg",
+    "figma-1-2/gallery/07.jpg",
+    "figma-1-2/gallery/08.jpg",
+    "figma-1-2/gallery/09.jpg",
+    "figma-1-2/gallery/10.jpg",
+    "figma-1-2/gallery/11.jpg",
+    "figma-1-2/gallery/12.jpg",
+    "figma-1-2/gallery/13.jpg",
+    "figma-1-2/gallery/14.jpg",
+    "figma-1-2/gallery/15.jpg",
+    "figma-1-2/gallery/16.jpg",
+    "figma-1-2/gallery/17.jpg",
+    "figma-1-2/gallery/18.jpg",
+    "figma-1-2/gallery/19.jpg",
+    "figma-1-2/gallery/20.jpg",
+    "figma-1-2/gallery/21.jpg",
+    "figma-1-2/gallery/22.jpg",
+    "figma-1-2/gallery/23.jpg",
+    "figma-1-2/gallery/24.jpg",
+    "figma-1-2/gallery/25.jpg",
+    "figma-1-2/gallery/26.jpg",
+    "figma-1-2/gallery/27.jpg",
+    "figma-1-2/gallery/28.jpg",
+    "figma-1-2/gallery/29.jpg",
+    "figma-1-2/gallery/30.jpg"
+  ],
+  "gifts": [
+    {
+      "bank": "Bank Demo",
+      "accountNumber": "00000000000000",
+      "accountName": "Rekening Contoh — Bukan untuk Transfer"
+    }
+  ]
+}

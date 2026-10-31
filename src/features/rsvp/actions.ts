@@ -1,10 +1,9 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
-import { guests, invitations, rsvps } from "@/db/schema";
+import { saveRsvp } from "@/db/writes";
 import { invitationPath } from "@/lib/invitation-url";
 
 export type RsvpFormState = { ok: boolean; message: string };
@@ -26,37 +25,8 @@ export async function submitRsvpAction(_prev: RsvpFormState, formData: FormData)
   const parsed = rsvpSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Data RSVP tidak valid" };
 
-  const { token, status, wish } = parsed.data;
-  const attendanceCount = status === "attending" ? parsed.data.attendanceCount : 0;
-
-  const result = await db.transaction(async (tx) => {
-    const [guest] = await tx
-      .select({ id: guests.id, allowedGuestCount: guests.allowedGuestCount, slug: invitations.slug })
-      .from(guests)
-      .innerJoin(invitations, eq(invitations.id, guests.invitationId))
-      .where(and(eq(guests.shareToken, token), eq(invitations.status, "published")))
-      .for("update", { of: guests });
-    if (!guest) return { error: "Link undangan tidak valid atau undangan tidak lagi aktif" };
-
-    if (status === "attending" && (attendanceCount < 1 || attendanceCount > guest.allowedGuestCount)) {
-      return { error: `Jumlah hadir harus antara 1 dan ${guest.allowedGuestCount} orang` };
-    }
-
-    // One row per guest; resubmitting updates it. is_wish_visible is intentionally kept so an
-    // owner's moderation is not undone by the guest editing their wish.
-    await tx
-      .insert(rsvps)
-      .values({ guestId: guest.id, status, attendanceCount, wish })
-      .onConflictDoUpdate({
-        target: rsvps.guestId,
-        set: { status, attendanceCount, wish, respondedAt: new Date() },
-      });
-    return { slug: guest.slug };
-  });
-
-  if ("error" in result && typeof result.error === "string") return { ok: false, message: result.error };
-
-  if (!("slug" in result)) return { ok: false, message: "Konfirmasi belum tersimpan" };
+  const result = saveRsvp(db, parsed.data);
+  if (!result.ok) return result;
   revalidatePath(invitationPath(result.slug));
   return { ok: true, message: "Terima kasih, konfirmasi kamu sudah tersimpan" };
 }

@@ -1,6 +1,6 @@
 # Wedding Invitation Platform
 
-Next.js App Router + Supabase (Auth, Postgres) + Drizzle. Modular monolith dengan pemisahan per domain di `src/features`.
+Next.js App Router + SQLite (better-sqlite3, Drizzle) + Supabase Auth. Data undangan, tamu, dan RSVP disimpan di SQLite pada server. Modular monolith dengan pemisahan per domain di `src/features`.
 
 ## Setup
 
@@ -8,11 +8,13 @@ Next.js App Router + Supabase (Auth, Postgres) + Drizzle. Modular monolith denga
 cp .env.example .env.local      # isi semua variabel
 npm install
 npm audit                       # lihat Security untuk temuan yang sudah diketahui
-npm run db:migrate              # terapkan drizzle/*.sql, pakai DIRECT_DATABASE_URL (port 5432)
+npm run db:migrate              # terapkan drizzle/sqlite/*.sql ke SQLITE_PATH
 npm run dev
 ```
 
-Setelah mengubah `src/db/schema.ts`, jalankan `npm run db:generate` untuk membuat migration baru, lalu `npm run db:migrate`.
+Gunakan Node.js >=22.18. `SQLITE_PATH` default `./data/wedding.sqlite`; folder baru dibuat privat (0700), file DB 0600. Jika direktori sudah ada, atur `chmod 700 data` terlebih dahulu. Path di `public/`, `out/`, atau `.next/` ditolak. File DB, WAL, backup, dan environment tidak masuk Git maupun file tracing deployment Next.js.
+
+Setelah mengubah `src/db/schema.ts`, jalankan `npm run db:generate` untuk membuat migration baru, lalu `npm run db:migrate`. Migrasi membuat backup konsisten terlebih dahulu jika tabel aplikasi sudah ada. Seluruh migration aktif berada di `drizzle/sqlite/`.
 
 ### Scripts
 
@@ -21,13 +23,29 @@ Setelah mengubah `src/db/schema.ts`, jalankan `npm run db:generate` untuk membua
 | `npm run dev` / `build` / `start` | Next.js |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm test` | Unit test (`node --test`) |
-| `npm run db:generate` / `db:migrate` | Drizzle Kit |
+| `npm run db:generate` / `db:migrate` | Generate migration Drizzle / jalankan migration SQLite dengan backup |
+| `npm run db:backup` | Backup konsisten dengan SQLite backup API, termasuk transaksi di WAL |
+| `npm run db:seed` | Seed demo lengkap dan upload 37 gambar ke server aset Supabase Storage |
 
 Supabase Auth: aktifkan Email provider (magic link), set **Site URL** = `SITE_URL`, dan tambahkan `${SITE_URL}/auth/callback` ke Redirect URLs.
 
-Pada database lokal workspace ini tersedia `/demo-gaby-afdhal` untuk melihat template dengan foto dari prototype. Data/foto demo berada di database dan storage lokal, bukan otomatis dibuat oleh migrasi. Rekening di demo adalah contoh.
+### Seed demo
 
-Setelah migrate, pastikan di Supabase Table Editor ketiga tabel (`invitations`, `guests`, `rsvps`) berstatus **RLS enabled**. Jika tidak, token tamu bisa terbaca lewat Data API memakai anon key.
+Setelah `npm run db:migrate`, jalankan `npm run db:seed`. Seed memperbarui draft/published **hanya** `/demo-gaby-afdhal` dengan teks acara dari prototype, 30 foto galeri, cover/bingkai, foto mempelai/kutipan, dan 2 gambar peta (37 gambar total). Empat tamu contoh mencakup belum konfirmasi, hadir, dan tidak hadir; tiga ucapan contoh mengisi daftar ucapan. Rekening adalah contoh, musik kosong karena prototype tidak menyertakan berkas audio.
+
+Pada DB baru, isi `SEED_OWNER_ID` dengan UUID akun Supabase Auth yang sudah ada. Pada workspace ini owner diambil dari demo yang sudah ada. Owner diverifikasi sebelum seed; seed menolak mengambil alih undangan milik akun lain. Jalankan hanya untuk demo: konten draft/published demo ditimpa setelah backup, sedangkan tamu/token/respons/moderasi yang sudah ada dan undangan lain dipertahankan.
+
+Server aset sementara menggunakan bucket publik `wedding-assets` pada `SUPABASE_URL`, dengan prefix `demo-gaby-afdhal/`. `R2_PUBLIC_URL` harus mengizinkan `${SUPABASE_URL}/storage/v1/object/public` (atau URL bucket tersebut). Saat lokal, CLI Supabase menyediakan kunci storage tanpa menuliskannya ke repo. Saat remote, isi `SUPABASE_SERVICE_ROLE_KEY` melalui environment privat untuk proses seed saja; jangan memakai awalan `NEXT_PUBLIC_`. Seed memeriksa seluruh URL gambar sebelum menyimpan DB. Gambar konten tetap terpisah dari ornamen UI template.
+
+Halaman yang sudah di-cache perlu diterbitkan ulang lewat dashboard pemilik setelah seed. Link RSVP personal tersedia pada daftar tamu pemilik; token acak tidak disimpan dalam fixture Git.
+
+### Deployment dan backup
+
+Target GitHub: `https://github.com/this-egy2015/wedding-invitation`. Riwayat repo yang sudah ada dipertahankan. Percobaan Vercel 2026-10-31 tertahan karena CLI belum login. Stack saat ini juga memerlukan SQLite remote (misalnya libSQL) untuk Vercel, serta Supabase Auth dan asset server yang dapat diakses publik; URL localhost workspace bukan konfigurasi produksi. [Vercel tidak menyediakan persistensi file SQLite lokal](https://vercel.com/kb/guide/is-sqlite-supported-in-vercel). Jangan mengarahkan DB ke `/tmp` sebagai solusi penyimpanan RSVP. `.vercelignore` mengecualikan environment privat, DB/backup, dan konfigurasi editor saat upload source.
+
+Jalankan pada server Node.js dengan disk lokal persisten; mount direktori SQLite ketika memakai container. Gunakan satu host untuk file DB ini. Jangan menaruhnya pada filesystem sementara/serverless atau berbagi file lewat network filesystem: [WAL memerlukan proses pada host yang sama](https://sqlite.org/wal.html). Backup di `data/backups/` juga privat; salin backup hasil `npm run db:backup` ke penyimpanan terpisah sesuai jadwal operasional. Jangan sekadar menyalin file `.sqlite` saat aplikasi aktif karena transaksi terbaru dapat berada di WAL.
+
+Untuk pemulihan, hentikan semua proses aplikasi, simpan set DB/WAL/SHM lama untuk rollback, lalu pulihkan snapshot backup ke `SQLITE_PATH` tanpa membawa sidecar WAL/SHM dari DB sebelumnya. Pastikan izin folder 0700/file 0600, jalankan migrasi yang diperlukan, dan hidupkan kembali aplikasi. Proteksi file ini bukan enkripsi; gunakan enkripsi disk/backup jika dibutuhkan.
 
 ## Struktur
 
@@ -49,8 +67,8 @@ src/
 
 ## Keputusan desain
 
-- **Ownership**: Drizzle konek sebagai role `postgres` dan tidak terkena RLS. Semua akses dashboard melewati `getOwnedInvitation()` (filter `owner_id`). Proxy hanya me-refresh session.
-- **RLS tanpa policy** di semua tabel, agar Data API Supabase (anon/authenticated) tidak bisa membaca data.
+- **Ownership**: seluruh akses dashboard melewati `requireUser()`/`getOwnedInvitation()` (filter `owner_id`). Identitas tetap diverifikasi lewat Supabase Auth; proxy hanya me-refresh session. UUID owner dipertahankan saat impor.
+- **Batas akses SQLite**: modul DB ditandai `server-only`, file privat, query terparameterisasi, foreign keys aktif di setiap koneksi, serta constraint status/token/kuota/JSON di database. Tidak ada Data API SQLite publik atau RLS. Foreign key ke `auth.users` tidak bisa lintas database; penghapusan akun Supabase perlu disertai penghapusan data aplikasi secara terpisah.
 - **Caching publik**: konten published di-cache per slug (`unstable_cache` + tag). `publish`/`unpublish` memanggil `updateTag`. Tamu dan ucapan dibaca per request, sehingga token tidak pernah masuk cache.
 - **Route publik**: `/:idUndangan` memakai slug immutable (contoh `/demo-fajar-nadya`), bukan UUID internal dashboard atau ID template. `/`, `/home`, dan slug tidak terbit/tidak dikenal menampilkan 404 “Undangan tidak ditemukan”. `/invite/:slug` mengarahkan ke route baru sambil mempertahankan token. `/login` hanya diakses lewat URL langsung, tanpa tautan dari undangan.
 - **Token tamu**: 128-bit random (`base64url`, 22 karakter). `Referrer-Policy: no-referrer` di seluruh route agar token tidak bocor ke Maps/R2.
@@ -59,16 +77,18 @@ src/
 - **UI dan konten terpisah**: template `classic` mengikuti Frame 1/2 prototype, dengan CSS Module dan komponen React. Ornamen berada di `src/templates/classic/assets/` ([inventaris](src/templates/classic/assets/README.md)); foto dan informasi pasangan berasal dari konten slug yang dibuka. Prototype HTML/JS bukan runtime aplikasi. Cover meluncur vertikal 1,5 detik lalu dilepas; bagian undangan memakai scroll biasa.
 - **Status `pending`** tidak disimpan; tamu tanpa baris `rsvps` dianggap pending.
 - **Waktu acara** disimpan sebagai wall-clock lokal + zona IANA (`timezone`). Countdown dihitung di server ke epoch absolut.
-- **Kuota**: divalidasi di server dalam transaksi `FOR UPDATE`. Kuota tidak bisa diturunkan di bawah jumlah yang sudah dikonfirmasi.
+- **Kuota**: RSVP dan perubahan kuota memakai transaksi sinkron `BEGIN IMMEDIATE`, menggantikan row lock PostgreSQL. Kuota tidak bisa diturunkan di bawah jumlah yang sudah dikonfirmasi; perubahan RSVP tidak membuka kembali ucapan yang dimoderasi. WAL, busy timeout 5 detik, dan synchronous FULL diaktifkan.
 
 ## Belum dikerjakan (sengaja / butuh keputusan)
 
 - **Upload ke R2**: konten saat ini menerima URL yang harus berada di bawah `R2_PUBLIC_URL`. Upload (presigned URL + verifikasi ukuran/tipe) belum dibuat.
 - **Rate limiting**: belum ada di level aplikasi. Aturan WAF perlu mencakup POST RSVP pada route publik `/:idUndangan`. RSVP sudah terbatas satu baris per token.
 - **shadcn/ui**: dashboard masih Tailwind biasa. Jalankan `npx shadcn@latest init` bila ingin migrasi.
-- Backup DB dan monitoring (Phase 6): gunakan PITR/backup Supabase.
+- Penjadwalan backup off-host dan monitoring belum otomatis; alat snapshot SQLite tersedia melalui `npm run db:backup`.
 
 ## Security
+
+Migrasi SQLite (2026-10-31) diuji dengan better-sqlite3 13.0.3 / SQLite 3.53.4. `npm audit --omit=dev --registry=https://registry.npmjs.org` tidak menemukan vulnerability runtime. Pengujian DB mencakup file privat, penolakan path publik/symlink, constraint/FK/cascade, token invalid, upsert/moderasi, rollback penurunan kuota, backup, dan persaingan transaksi pada koneksi terpisah. [Drizzle SQLite](https://orm.drizzle.team/docs/sqlite/get-started-sqlite) dan [foreign key SQLite](https://sqlite.org/foreignkeys.html) menjadi referensi konfigurasi.
 
 Batas minimum versi (dicek 2026-10-30 via sumber pihak ketiga; konfirmasi ulang ke advisory vendor):
 

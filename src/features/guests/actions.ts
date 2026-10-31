@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
 import { guests, rsvps } from "@/db/schema";
+import { updateGuestDetails } from "@/db/writes";
 import { formatIssues } from "@/features/invitations/content";
 import { getOwnedInvitation } from "@/features/invitations/queries";
 import { getGuest } from "./queries";
@@ -51,19 +52,7 @@ export async function updateGuestAction(
   const parsed = guestSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, errors: formatIssues(parsed.error) };
 
-  const error = await db.transaction(async (tx) => {
-    // Lock the guest row so a concurrent RSVP cannot exceed the new quota.
-    await tx.select({ id: guests.id }).from(guests).where(eq(guests.id, guest.id)).for("update");
-    const [rsvp] = await tx
-      .select({ attendanceCount: rsvps.attendanceCount })
-      .from(rsvps)
-      .where(eq(rsvps.guestId, guest.id));
-    if (rsvp && rsvp.attendanceCount > parsed.data.allowedGuestCount) {
-      return `Tamu sudah konfirmasi ${rsvp.attendanceCount} orang; kuota tidak boleh lebih kecil`;
-    }
-    await tx.update(guests).set(parsed.data).where(eq(guests.id, guest.id));
-    return null;
-  });
+  const error = updateGuestDetails(db, invitation.id, guest.id, parsed.data);
   if (error) return { ok: false, errors: [error] };
 
   revalidatePath(`/dashboard/invitations/${invitation.id}/guests`, "layout");
