@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+const vercelHost = process.env.VERCEL_ENV === "production"
+  ? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL
+  : process.env.VERCEL_URL;
+
 export const env = z
   .object({
     SQLITE_PATH: z.string().min(1).default("./data/wedding.sqlite"),
@@ -20,6 +24,7 @@ export const env = z
   })
   .parse({
     ...process.env,
+    SITE_URL: process.env.SITE_URL ?? (process.env.VERCEL && vercelHost ? `https://${vercelHost}` : undefined),
     SUPABASE_URL: process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL,
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   });

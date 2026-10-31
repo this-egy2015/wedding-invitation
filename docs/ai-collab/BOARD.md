@@ -4,9 +4,11 @@
 
 | Agen | Branch | Tugas | File yang disentuh |
 |---|---|---|---|
-| codex | codex/vercel-remote-assets | Kode remote selesai; menunggu provisioning Supabase/Turso dan login Vercel | deploy/env hosted |
+| — | — | Perbaikan SITE_URL selesai; deployment menunggu environment Turso | — |
 
 ## Handoff terakhir
+
+- **2026-10-31, codex**: `codex/vercel-site-url` memperbaiki ZodError SITE_URL pada build Vercel. URL eksplisit tetap utama; fallback domain sistem Vercel membedakan Production dan Preview. Typecheck, 19 tes, dan build lulus. CLI Vercel kini login dan repo terhubung ke proyek `acme-d-luh-vi/wedding-invitation`; integrasi Supabase Production ada, tetapi TURSO_DATABASE_URL/TURSO_AUTH_TOKEN belum terdaftar. Lihat `notes/2026-10-31-codex-vercel-site-url.md`.
 
 - **2026-10-31, codex**: Origin SSH sudah dapat push ke `main`. Keputusan terakhir pemilik: aplikasi penuh di Vercel, dengan Turso (SQLite/libSQL) dan Supabase hosted Auth/Storage. Kode memakai transaksi async, seed/migrasi lokal maupun remote, URL media `/berubah/<slug>/...`, alias environment integrasi Supabase, dan region Vercel Singapore. Makefile/howto tersedia. Typecheck, tes, build lokal/simulasi config remote, smoke HTTP ownership/RSVP serta media/carousel lulus. Deployment sungguhan menunggu layanan/env hosted; lihat `notes/2026-10-31-codex-vercel-remote-assets.md`.
 

@@ -168,6 +168,8 @@ make seed-remote
 Target ini hanya membaca `.env.production.local`, menjalankan migrasi ke Turso, memverifikasi owner hosted, lalu meng-upload 37 foto dan seed demo. Jika konfigurasi remote tidak lengkap, proses gagal tanpa fallback ke DB lokal. Token tamu lokal tidak diimpor otomatis.
 
 6. Di environment Vercel **Production**, isi `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `SITE_URL`, serta URL/key publik Supabase (boleh alias integrasi). Secret/admin key hanya diperlukan oleh proses seed, bukan untuk halaman undangan atau login.
+
+   `SITE_URL` dapat dikosongkan dengan menghapus variabelnya pada Vercel: Production memakai `https://${VERCEL_PROJECT_PRODUCTION_URL}` (fallback `VERCEL_URL`), sedangkan Preview memakai `https://${VERCEL_URL}`. Nilai eksplisit tetap diutamakan. Pastikan akses System Environment Variables aktif pada pengaturan Vercel. Untuk seed dari mesin lokal, `.env.production.local` tetap perlu SITE_URL eksplisit karena domain sistem Vercel tidak otomatis tersedia. Jika URL callback harus stabil/custom, isi SITE_URL dengan domain tersebut.
 7. Pada Supabase Auth, set **Site URL** ke domain produksi dan tambahkan `https://<domain-aplikasi>.vercel.app/auth/callback` ke **Redirect URLs**. Delivery email produksi memakai konfigurasi Supabase hosted; inbox Docker port 54324 hanya untuk lokal.
 8. Deploy dengan `npx vercel --prod`, lalu buka `https://<domain-aplikasi>.vercel.app/demo-gaby-afdhal`. Periksa `/login`, login owner, link personal tamu, dan penyimpanan RSVP. `/` tetap 404 sesuai desain.
 

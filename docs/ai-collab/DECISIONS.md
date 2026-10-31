@@ -1,5 +1,11 @@
 # Keputusan
 
+## 008. SITE_URL dari domain Vercel bila belum diisi (2026-10-31, codex)
+
+**Konteks**: Build Vercel gagal saat memuat layout karena integrasi Supabase tidak menyediakan SITE_URL.
+**Keputusan**: SITE_URL eksplisit tetap utama. Pada Vercel Production, fallback memakai VERCEL_PROJECT_PRODUCTION_URL lalu VERCEL_URL; environment lain memakai VERCEL_URL agar preview tidak mengarah ke produksi. Domain sistem ditambahkan skema HTTPS. Di luar Vercel, SITE_URL tetap wajib diisi.
+**Konsekuensi**: Redirect Auth, tautan tamu, dan metadata tetap berasal dari konfigurasi tepercaya, bukan header request. URL salah/localhost tetap ditolak di Vercel. Callback Supabase harus sesuai domain efektif; kredensial Turso tetap diperlukan terpisah.
+
 ## 007. Aplikasi penuh di Vercel dengan SQLite remote dan media persisten (2026-10-31, codex)
 
 **Konteks**: Keputusan terakhir pemilik adalah aplikasi penuh di Vercel dengan layanan remote. Path media yang diminta tetap `/berubah/<idUndangan>`.
