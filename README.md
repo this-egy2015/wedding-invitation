@@ -41,7 +41,7 @@ Media disimpan di bucket publik `wedding-assets` pada `SUPABASE_URL`, dengan pre
 
 Saat lokal, CLI Supabase menyediakan kunci tanpa menuliskannya ke repo. Saat hosted, isi `SUPABASE_SERVICE_ROLE_KEY` atau `SUPABASE_SECRET_KEY` melalui environment privat untuk seed; jangan memakai awalan `NEXT_PUBLIC_`. Seed memeriksa gambar sebelum menyimpan DB. `R2_PUBLIC_URL` tidak dipakai lagi. Gambar konten tetap terpisah dari ornamen UI template.
 
-Halaman yang sudah di-cache perlu diterbitkan ulang lewat dashboard pemilik setelah seed. Form RSVP tersedia juga di link umum. Tamu mengisi nama, kehadiran, jumlah (1–20), dan ucapan. Cookie HttpOnly per undangan memungkinkan pembaruan respons pada browser yang sama. Link personal dari dashboard tetap mengikuti kuota owner. Ucapan terbaru yang tidak dimoderasi dibaca dari DB; tidak ada ucapan contoh.
+Halaman yang sudah di-cache perlu diterbitkan ulang lewat dashboard pemilik setelah seed. Form RSVP tersedia juga di link umum. Tamu mengisi nama, kehadiran, jumlah (1–20), dan ucapan. Cookie HttpOnly per undangan memungkinkan pembaruan respons pada browser yang sama. Link personal dari dashboard tetap mengikuti kuota owner. Ucapan terbaru yang tidak dimoderasi dibaca dari DB dan dimuat bertahap di bawah form (maksimal 5 kartu terlihat, infinite scroll); tidak ada ucapan contoh.
 
 ### Deployment dan backup
 
@@ -78,10 +78,12 @@ src/
 - **Caching publik**: konten published di-cache per slug (`unstable_cache` + tag). `publish`/`unpublish` memanggil `updateTag`. Tamu dan ucapan dibaca per request, sehingga token tidak pernah masuk cache.
 - **Route publik**: `/:idUndangan` memakai slug immutable (contoh `/fajar-nadya`), bukan UUID internal dashboard atau ID template. `/`, `/home`, dan slug tidak terbit/tidak dikenal menampilkan 404 “Undangan tidak ditemukan”. `/invite/:slug` mengarahkan ke route baru sambil mempertahankan token. `/login` hanya diakses lewat URL langsung, tanpa tautan dari undangan.
 - **RSVP publik**: nama adalah isian pengunjung, bukan identitas terverifikasi. Tidak melakukan deduplikasi berdasarkan nama. Respons dikenali lewat cookie HttpOnly, SameSite=Lax, Secure pada HTTPS. Browser/perangkat baru atau cookie dihapus berarti respons baru. Moderasi ucapan tetap berlaku.
+- **Daftar ucapan publik**: ucapan yang lolos moderasi dimuat client-side per halaman 5 item lewat `listWishesAction`; `WishList` memakai `IntersectionObserver` untuk infinite scroll, dan `RsvpSection` me-refresh daftar segera setelah submit sukses. Kartu ucapan di-clamp ke tinggi tetap agar maksimal 5 kartu terlihat.
 - **Token tamu**: 128-bit random (`base64url`, 22 karakter). `Referrer-Policy: no-referrer` di seluruh route agar token tidak bocor ke Maps/R2.
 - **Slug immutable** setelah dibuat. Pengecualian satu kali: undangan awal dipromosikan ke `/gaby-afdhal`; `/demo-gaby-afdhal` redirect permanen sambil mempertahankan query. Media existing tetap pada namespace lama agar link gambar tidak putus.
 - **Template di kode, bukan tabel**: `invitations.template_id` + `template_version` merujuk ke `src/templates/index.ts`. Menambah template tidak mengubah skema DB.
 - **UI dan konten terpisah**: template `classic` mengikuti Frame 1/2 prototype, dengan CSS Module dan komponen React. Ornamen berada di `src/templates/classic/assets/` ([inventaris](src/templates/classic/assets/README.md)); foto dan informasi pasangan berasal dari konten slug yang dibuka. Prototype HTML/JS bukan runtime aplikasi. Cover meluncur vertikal 1,5 detik lalu dilepas; bagian undangan memakai scroll biasa.
+- **Nama penerima cover**: field konten opsional `recipientName` menampilkan nama penerima di cover link umum sebagai "Kepada Yth. [nama]"; jika kosong, "Tamu Undangan". Link personal `?to=` tetap menimpa nama ini.
 - **Status `pending`** tidak disimpan; tamu tanpa baris `rsvps` dianggap pending.
 - **Waktu acara** disimpan sebagai wall-clock lokal + zona IANA (`timezone`). Countdown dihitung di server ke epoch absolut.
 - **Kuota**: RSVP dan perubahan kuota memakai transaksi write libSQL (`BEGIN IMMEDIATE`) dengan operasi async yang ditunggu. Kuota tidak bisa diturunkan di bawah jumlah yang sudah dikonfirmasi; perubahan RSVP tidak membuka kembali ucapan yang dimoderasi. Mode file lokal memakai WAL dan busy timeout 5 detik.

@@ -1,5 +1,17 @@
 # Keputusan
 
+## 011. Nama penerima pada cover undangan publik (2026-10-31, codex)
+
+**Konteks**: Cover publik hanya menampilkan nama pasangan dan "Tamu Undangan"; pemilik ingin menaruh nama tamu/penerima di undangan.
+**Keputusan**: Menambah field konten opsional `recipientName` (maks 100, default ""). Cover menampilkan nama tamu dari link personal (`?to=`) bila ada; jika tidak, fallback ke `recipientName`, lalu "Tamu Undangan". Field disimpan lewat `saveDraftAction`/`publishAction` yang sudah ada, tanpa API/DB baru.
+**Konsekuensi**: Draft lama tetap valid lewat `.default("")`. Preview owner menampilkan nama penerima asli, bukan placeholder. Link personal tetap menimpa nama ini.
+
+## 010. Daftar ucapan publik client-side dengan infinite scroll (2026-10-31, codex)
+
+**Konteks**: Ucapan sebelumnya dirender server-side sekaligus (maks 50). Pemilik meminta maksimal 5 kartu terlihat lalu infinite scroll, dan ucapan baru langsung muncul setelah submit.
+**Keputusan**: Server action `listWishesAction(slug, offset)` memuat halaman 5 item. Client `WishList` memakai `IntersectionObserver` + sentinel untuk memuat halaman berikutnya; `RsvpSection` menaikkan `refreshKey` setiap submit sukses agar ucapan baru langsung tampil. `TemplateProps.wishes` dan `listVisibleWishes` dihapus.
+**Konsekuensi**: Ucapan tetap dibaca dari DB per request dan mengikuti moderasi. Kartu di-clamp ke tinggi tetap 99px (judul ellipsis, ucapan 2 baris) agar 5 kartu terlihat konsisten. Tidak ada perubahan schema DB.
+
 ## 009. Undangan produksi dan RSVP dari link umum (2026-10-31, codex)
 
 **Konteks**: Pemilik meminta menghapus penyebutan demo/data contoh dan menjadikan konfirmasi kehadiran dinamis.
