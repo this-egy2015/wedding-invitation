@@ -7,7 +7,7 @@ help:
 	  'make setup    Install dependency dan buat .env.local jika belum ada' \
 	  'make services Jalankan Supabase lokal (Docker harus aktif)' \
 	  'make migrate  Terapkan migration SQLite' \
-	  'make seed     Migrasi lalu isi demo dan upload gambar' \
+	  'make seed     Migrasi lalu isi undangan dan upload gambar' \
 	  'make seeded   Supabase → migrasi → seed → dev server' \
 	  'make seed-remote Migrasi + seed Turso/Storage dari .env.production.local' \
 	  'make dev      Dev server tanpa mengulang seed' \

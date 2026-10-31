@@ -1,5 +1,11 @@
 # Keputusan
 
+## 009. Undangan produksi dan RSVP dari link umum (2026-10-31, codex)
+
+**Konteks**: Pemilik meminta menghapus penyebutan demo/data contoh dan menjadikan konfirmasi kehadiran dinamis.
+**Keputusan**: Undangan aktif dipindahkan sekali ke `/gaby-afdhal`, link lama redirect dengan query tetap. Seed baru hanya menginisialisasi undangan tanpa tamu/ucapan/rekening contoh dan tidak menimpa konten existing. Form publik menerima nama dan RSVP; token acak server disimpan pada cookie HttpOnly per undangan agar browser yang sama memperbarui responsnya. Link personal tetap memakai token dan kuota yang ditetapkan owner.
+**Konsekuensi**: Nama publik adalah isian tamu, bukan identitas terverifikasi. Cookie hilang/perangkat berbeda membuat respons baru; tidak menggabungkan tamu berdasarkan nama. Ucapan dibaca dari DB dan mengikuti moderasi owner. Validasi input, pemeriksaan status published, transaksi, dan ownership dashboard tetap berlaku. Media lama dipertahankan pada namespace existing agar tidak memutus gambar. Ini pengecualian satu kali atas slug immutable; slug undangan lain tidak berubah. Proteksi volumetrik tetap memerlukan WAF.
+
 ## 008. SITE_URL dari domain Vercel bila belum diisi (2026-10-31, codex)
 
 **Konteks**: Build Vercel gagal saat memuat layout karena integrasi Supabase tidak menyediakan SITE_URL.

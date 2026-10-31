@@ -60,12 +60,13 @@ export async function getGuest(invitationId: string, guestId: string) {
   return guest;
 }
 
-/** Public lookup by personal token, scoped to the invitation being viewed. */
+/** Return only template fields; browser-cookie tokens must never enter client props. */
 export async function getGuestByToken(invitationId: string, token: string) {
   if (!/^[A-Za-z0-9_-]{22}$/.test(token)) return null;
 
   const [guest] = await db
-    .select(guestWithRsvp)
+    .select({ name: guests.name, partnerName: guests.partnerName, allowedGuestCount: guests.allowedGuestCount,
+      rsvpStatus: rsvps.status, attendanceCount: rsvps.attendanceCount, wish: rsvps.wish })
     .from(guests)
     .leftJoin(rsvps, eq(rsvps.guestId, guests.id))
     .where(and(eq(guests.shareToken, token), eq(guests.invitationId, invitationId)));

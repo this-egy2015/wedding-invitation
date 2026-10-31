@@ -10,11 +10,11 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { openSqlite } from "./sqlite.ts";
 
-const { demoContent, seedDemo } = await import("../../scripts/seed-data.ts");
+const { seedContent, seedInvitation } = await import("../../scripts/seed-data.ts");
 const { contentSchema } = await import("../features/invitations/content.ts");
 
 test("all seed images exist; asset validation requires safe local media paths", () => {
-  const { content, assets } = demoContent("/berubah/demo-gaby-afdhal");
+  const { content, assets } = seedContent("/berubah/gaby-afdhal");
   assert.equal(assets.length, 37);
   assert.equal(new Set(assets).size, 37);
   for (const path of assets) assert(existsSync(new URL(`../../prototype/assets/${path}`, import.meta.url)), path);
@@ -41,22 +41,26 @@ test("seed reruns preserve guest tokens, responses, moderation and unrelated inv
   t.after(() => { asyncClient.close(); client.close(); rmSync(directory, { recursive: true, force: true }); });
   migrate(drizzle(client), { migrationsFolder: "./drizzle/sqlite" });
   const ownerId = randomUUID();
-  const { content } = demoContent("/berubah/demo-gaby-afdhal");
-  const id = await seedDemo(asyncClient, ownerId, content);
-  assert.equal((client.prepare("SELECT * FROM guests").all()).length, 4);
-  assert.equal((client.prepare("SELECT * FROM rsvps").all()).length, 3);
+  const { content } = seedContent("/berubah/gaby-afdhal");
+  const id = await seedInvitation(asyncClient, ownerId, content);
+  assert.equal((client.prepare("SELECT * FROM guests").all()).length, 0);
+  assert.equal((client.prepare("SELECT * FROM rsvps").all()).length, 0);
+  assert.deepEqual(content.gifts, []);
+  client.prepare("INSERT INTO guests (id,invitation_id,name,allowed_guest_count,share_token,created_at,updated_at) VALUES ('real-guest',?,'Tamu asli',2,?,1,1)").run(id, 'A'.repeat(22));
+  client.prepare("INSERT INTO rsvps (id,guest_id,status,attendance_count,wish,is_wish_visible,responded_at,updated_at) VALUES ('real-response','real-guest','attending',1,'Ucapan asli',1,1,1)").run();
+  assert.equal((client.prepare("SELECT * FROM rsvps").all()).length, 1);
   client.prepare("UPDATE rsvps SET wish = 'Ucapan diedit', is_wish_visible = 0").run();
   const guests = client.prepare("SELECT * FROM guests ORDER BY id").all();
   const responses = client.prepare("SELECT * FROM rsvps ORDER BY id").all();
   client.prepare(`INSERT INTO invitations (id, owner_id, template_id, template_version, slug, created_at, updated_at)
     VALUES (?, ?, 'classic', 1, 'other-wedding', 1, 1)`).run(randomUUID(), randomUUID());
   const other = client.prepare("SELECT * FROM invitations WHERE slug = 'other-wedding'").get();
-  assert.equal(await seedDemo(asyncClient, ownerId, { ...content, coverTitle: "Judul baru" }), id);
+  assert.equal(await seedInvitation(asyncClient, ownerId, { ...content, coverTitle: "Judul baru" }), id);
   assert.deepEqual(client.prepare("SELECT * FROM guests ORDER BY id").all(), guests);
   assert.deepEqual(client.prepare("SELECT * FROM rsvps ORDER BY id").all(), responses);
   assert.deepEqual(client.prepare("SELECT * FROM invitations WHERE slug = 'other-wedding'").get(), other);
-  await assert.rejects(() => seedDemo(asyncClient, randomUUID(), content), /akun lain/);
+  await assert.rejects(() => seedInvitation(asyncClient, randomUUID(), content), /akun lain/);
   const stored = client.prepare("SELECT published_content FROM invitations WHERE id = ?").get(id) as { published_content: string };
-  assert.equal(JSON.parse(stored.published_content).coverTitle, "Judul baru");
+  assert.equal(JSON.parse(stored.published_content).coverTitle, content.coverTitle);
   assert.deepEqual(client.pragma("foreign_key_check"), []);
 });

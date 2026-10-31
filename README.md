@@ -27,21 +27,21 @@ Setelah mengubah `src/db/schema.ts`, jalankan `npm run db:generate` untuk membua
 | `npm test` | Unit test (`node --test`) |
 | `npm run db:generate` / `db:migrate` | Generate migration Drizzle / jalankan migration SQLite dengan backup |
 | `npm run db:backup` | Backup SQLite lokal dengan backup API, termasuk transaksi di WAL; bukan backup Turso |
-| `npm run db:seed` | Seed demo lengkap dan upload 37 gambar ke server aset Supabase Storage |
+| `npm run db:seed` | Inisialisasi undangan lengkap dan upload 37 gambar ke server aset Supabase Storage |
 
 Supabase Auth: aktifkan Email provider (magic link), set **Site URL** = `SITE_URL`, dan tambahkan `${SITE_URL}/auth/callback` ke Redirect URLs.
 
-### Seed demo
+### Inisialisasi undangan
 
-Setelah `npm run db:migrate`, jalankan `npm run db:seed`. Seed memperbarui draft/published **hanya** `/demo-gaby-afdhal` dengan teks acara dari prototype, 30 foto galeri, cover/bingkai, foto mempelai/kutipan, dan 2 gambar peta (37 gambar total). Empat tamu contoh mencakup belum konfirmasi, hadir, dan tidak hadir; tiga ucapan contoh mengisi daftar ucapan. Rekening adalah contoh, musik kosong karena prototype tidak menyertakan berkas audio.
+Setelah `npm run db:migrate`, jalankan `npm run db:seed`. Seed menginisialisasi **hanya** `/gaby-afdhal` jika belum ada, dengan teks acara dari prototype dan 37 gambar (termasuk 30 galeri). Tidak membuat tamu, RSVP, ucapan, atau rekening contoh. Pengulangan seed mempertahankan konten, status terbit, gambar, tamu, dan respons existing. Musik kosong karena prototype tidak menyertakan berkas audio.
 
-Pada DB baru, isi `SEED_OWNER_ID` dengan UUID akun Supabase Auth yang sudah ada, atau `SEED_OWNER_EMAIL` untuk mencari/membuat akun owner. Akun baru belum terverifikasi, tanpa password dan tanpa pengiriman email otomatis; login tetap memerlukan magic link. Untuk demo yang sudah ada, owner lama dipertahankan. Owner diverifikasi sebelum seed; seed menolak mengambil alih undangan milik akun lain. Jalankan hanya untuk demo: konten draft/published demo ditimpa setelah backup, sedangkan tamu/token/respons/moderasi yang sudah ada dan undangan lain dipertahankan.
+Pada DB baru, isi `SEED_OWNER_ID` dengan UUID akun Supabase Auth yang sudah ada, atau `SEED_OWNER_EMAIL` untuk mencari/membuat akun owner. Akun baru belum terverifikasi, tanpa password dan tanpa pengiriman email otomatis; login tetap memerlukan magic link. Owner undangan lama dipertahankan dan diverifikasi; seed menolak mengambil alih undangan milik akun lain.
 
-Media disimpan di bucket publik `wedding-assets` pada `SUPABASE_URL`, dengan prefix `berubah/demo-gaby-afdhal/`. URL aplikasi berbentuk `/berubah/<idUndangan>/<file>`; `idUndangan` tetap slug. Route GET/HEAD meneruskan media dari Storage dengan allowlist tipe/path, tanpa memberikan secret key ke pengunjung. Gambar tersedia setelah deploy ulang dan tidak memerlukan rebuild saat file baru ditambahkan. Saat mengganti gambar, gunakan nama file baru dan perbarui konten agar cache langsung memakai versi baru.
+Media disimpan di bucket publik `wedding-assets` pada `SUPABASE_URL`, dengan prefix `berubah/gaby-afdhal/`. URL aplikasi berbentuk `/berubah/<idUndangan>/<file>`; `idUndangan` tetap slug. Route GET/HEAD meneruskan media dari Storage dengan allowlist tipe/path, tanpa memberikan secret key ke pengunjung. Gambar tersedia setelah deploy ulang dan tidak memerlukan rebuild saat file baru ditambahkan. Saat mengganti gambar, gunakan nama file baru dan perbarui konten agar cache langsung memakai versi baru.
 
 Saat lokal, CLI Supabase menyediakan kunci tanpa menuliskannya ke repo. Saat hosted, isi `SUPABASE_SERVICE_ROLE_KEY` atau `SUPABASE_SECRET_KEY` melalui environment privat untuk seed; jangan memakai awalan `NEXT_PUBLIC_`. Seed memeriksa gambar sebelum menyimpan DB. `R2_PUBLIC_URL` tidak dipakai lagi. Gambar konten tetap terpisah dari ornamen UI template.
 
-Halaman yang sudah di-cache perlu diterbitkan ulang lewat dashboard pemilik setelah seed. Link RSVP personal tersedia pada daftar tamu pemilik; token acak tidak disimpan dalam fixture Git.
+Halaman yang sudah di-cache perlu diterbitkan ulang lewat dashboard pemilik setelah seed. Form RSVP tersedia juga di link umum. Tamu mengisi nama, kehadiran, jumlah (1–20), dan ucapan. Cookie HttpOnly per undangan memungkinkan pembaruan respons pada browser yang sama. Link personal dari dashboard tetap mengikuti kuota owner. Ucapan terbaru yang tidak dimoderasi dibaca dari DB; tidak ada ucapan contoh.
 
 ### Deployment dan backup
 
@@ -76,9 +76,10 @@ src/
 - **Ownership**: seluruh akses dashboard melewati `requireUser()`/`getOwnedInvitation()` (filter `owner_id`). Identitas tetap diverifikasi lewat Supabase Auth; proxy hanya me-refresh session. UUID owner dipertahankan saat impor.
 - **Batas akses SQLite**: modul DB ditandai `server-only`, file privat, query terparameterisasi, foreign keys aktif di setiap koneksi, serta constraint status/token/kuota/JSON di database. Tidak ada Data API SQLite publik atau RLS. Foreign key ke `auth.users` tidak bisa lintas database; penghapusan akun Supabase perlu disertai penghapusan data aplikasi secara terpisah.
 - **Caching publik**: konten published di-cache per slug (`unstable_cache` + tag). `publish`/`unpublish` memanggil `updateTag`. Tamu dan ucapan dibaca per request, sehingga token tidak pernah masuk cache.
-- **Route publik**: `/:idUndangan` memakai slug immutable (contoh `/demo-fajar-nadya`), bukan UUID internal dashboard atau ID template. `/`, `/home`, dan slug tidak terbit/tidak dikenal menampilkan 404 “Undangan tidak ditemukan”. `/invite/:slug` mengarahkan ke route baru sambil mempertahankan token. `/login` hanya diakses lewat URL langsung, tanpa tautan dari undangan.
+- **Route publik**: `/:idUndangan` memakai slug immutable (contoh `/fajar-nadya`), bukan UUID internal dashboard atau ID template. `/`, `/home`, dan slug tidak terbit/tidak dikenal menampilkan 404 “Undangan tidak ditemukan”. `/invite/:slug` mengarahkan ke route baru sambil mempertahankan token. `/login` hanya diakses lewat URL langsung, tanpa tautan dari undangan.
+- **RSVP publik**: nama adalah isian pengunjung, bukan identitas terverifikasi. Tidak melakukan deduplikasi berdasarkan nama. Respons dikenali lewat cookie HttpOnly, SameSite=Lax, Secure pada HTTPS. Browser/perangkat baru atau cookie dihapus berarti respons baru. Moderasi ucapan tetap berlaku.
 - **Token tamu**: 128-bit random (`base64url`, 22 karakter). `Referrer-Policy: no-referrer` di seluruh route agar token tidak bocor ke Maps/R2.
-- **Slug immutable** setelah dibuat, agar link tamu yang sudah dibagikan tidak rusak.
+- **Slug immutable** setelah dibuat. Pengecualian satu kali: undangan awal dipromosikan ke `/gaby-afdhal`; `/demo-gaby-afdhal` redirect permanen sambil mempertahankan query. Media existing tetap pada namespace lama agar link gambar tidak putus.
 - **Template di kode, bukan tabel**: `invitations.template_id` + `template_version` merujuk ke `src/templates/index.ts`. Menambah template tidak mengubah skema DB.
 - **UI dan konten terpisah**: template `classic` mengikuti Frame 1/2 prototype, dengan CSS Module dan komponen React. Ornamen berada di `src/templates/classic/assets/` ([inventaris](src/templates/classic/assets/README.md)); foto dan informasi pasangan berasal dari konten slug yang dibuka. Prototype HTML/JS bukan runtime aplikasi. Cover meluncur vertikal 1,5 detik lalu dilepas; bagian undangan memakai scroll biasa.
 - **Status `pending`** tidak disimpan; tamu tanpa baris `rsvps` dianggap pending.
@@ -88,7 +89,7 @@ src/
 ## Belum dikerjakan (sengaja / butuh keputusan)
 
 - **Upload dari dashboard**: belum dibuat. Seed/admin menaruh file di Storage; editor menerima path `/berubah/<slug>/<file>`. Bucket publik hanya untuk membaca media, tanpa policy tulis anonim.
-- **Rate limiting**: belum ada di level aplikasi. Aturan WAF perlu mencakup POST RSVP pada route publik `/:idUndangan`. RSVP sudah terbatas satu baris per token.
+- **Rate limiting**: belum ada di level aplikasi. Aturan WAF perlu mencakup POST RSVP pada route publik `/:idUndangan`. Respons terbatas satu baris per token, tetapi form umum dapat membuat tamu baru. Honeypot bukan pengganti rate limit WAF.
 - **shadcn/ui**: dashboard masih Tailwind biasa. Jalankan `npx shadcn@latest init` bila ingin migrasi.
 - Penjadwalan backup off-host dan monitoring belum otomatis; alat snapshot SQLite tersedia melalui `npm run db:backup`.
 

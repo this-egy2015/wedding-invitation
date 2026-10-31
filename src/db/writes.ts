@@ -1,9 +1,34 @@
 import { and, eq } from "drizzle-orm";
+import { randomBytes } from "node:crypto";
 import type { LibSQLDatabase } from "drizzle-orm/libsql";
 import * as schema from "./schema.ts";
 
 type Database = LibSQLDatabase<typeof schema>;
 const { guests, invitations, rsvps } = schema;
+
+/** A public response belongs to an opaque browser token, never to a matching name. */
+export function savePublicRsvp(db: Database, input: { slug: string; name: string; status: "attending" | "not_attending"; attendanceCount: number; wish: string | null }, visitorToken?: string) {
+  return db.transaction(async (tx) => {
+    const invitation = await tx.select({ id: invitations.id }).from(invitations)
+      .where(and(eq(invitations.slug, input.slug), eq(invitations.status, "published"))).get();
+    if (!invitation) return { ok: false as const, message: "Undangan tidak lagi aktif" };
+    let guest = visitorToken ? await tx.select().from(guests)
+      .where(and(eq(guests.invitationId, invitation.id), eq(guests.shareToken, visitorToken))).get() : undefined;
+    const limit = guest?.allowedGuestCount ?? 20;
+    const attendanceCount = input.status === "attending" ? input.attendanceCount : 0;
+    if (input.status === "attending" && (!Number.isInteger(attendanceCount) || attendanceCount < 1 || attendanceCount > limit)) {
+      return { ok: false as const, message: `Jumlah hadir harus antara 1 dan ${limit} orang` };
+    }
+    if (!guest) {
+      [guest] = await tx.insert(guests).values({ invitationId: invitation.id, name: input.name, allowedGuestCount: limit, shareToken: randomBytes(16).toString("base64url") }).returning();
+    } else {
+      await tx.update(guests).set({ name: input.name }).where(eq(guests.id, guest.id));
+    }
+    await tx.insert(rsvps).values({ guestId: guest.id, status: input.status, attendanceCount, wish: input.wish })
+      .onConflictDoUpdate({ target: rsvps.guestId, set: { status: input.status, attendanceCount, wish: input.wish, respondedAt: new Date() } });
+    return { ok: true as const, slug: input.slug, token: guest.shareToken };
+  }, { behavior: "immediate" });
+}
 
 export function saveRsvp(db: Database, input: { token: string; status: "attending" | "not_attending"; attendanceCount: number; wish: string | null }) {
   // libSQL starts write transactions with BEGIN IMMEDIATE before checking the quota.

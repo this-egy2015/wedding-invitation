@@ -14,7 +14,7 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import * as schema from "./schema.ts";
 import { backupSqlite, openSqlite } from "./sqlite.ts";
-import { saveRsvp, updateGuestDetails } from "./writes.ts";
+import { saveRsvp, savePublicRsvp, updateGuestDetails } from "./writes.ts";
 
 function fixture(t: TestContext) {
   const directory = mkdtempSync(join(tmpdir(), "wedding-sqlite-"));
@@ -30,6 +30,50 @@ function fixture(t: TestContext) {
   const input = { token: guest.shareToken, status: "attending" as const, attendanceCount: 2, wish: "Selamat" };
   return { directory, path, client, db, asyncDb, invitation, guest, input };
 }
+
+test("public RSVP creates a random token, updates only that visitor, and keeps moderation", async (t) => {
+  const { db, asyncDb, invitation } = fixture(t);
+  const input = { slug: invitation.slug, name: "Tamu Publik", status: "attending" as const, attendanceCount: 2, wish: "Selamat!" };
+  const first = await savePublicRsvp(asyncDb, input, "invalid-cookie");
+  assert(first.ok);
+  assert.match(first.token, /^[A-Za-z0-9_-]{22}$/);
+  const guest = db.select().from(schema.guests).where(eq(schema.guests.shareToken, first.token)).get()!;
+  db.update(schema.rsvps).set({ isWishVisible: false }).where(eq(schema.rsvps.guestId, guest.id)).run();
+  const updated = await savePublicRsvp(asyncDb, { ...input, name: "Nama Diperbaiki", status: "not_attending", wish: "Doa terbaik" }, first.token);
+  assert(updated.ok);
+  assert.equal(updated.token, first.token);
+  const response = db.select().from(schema.rsvps).where(eq(schema.rsvps.guestId, guest.id)).get()!;
+  assert.equal(response.attendanceCount, 0);
+  assert.equal(response.isWishVisible, false);
+  assert.equal(response.wish, "Doa terbaik");
+  assert.equal(db.select().from(schema.guests).where(eq(schema.guests.id, guest.id)).get()!.name, "Nama Diperbaiki");
+  const sameName = await savePublicRsvp(asyncDb, input);
+  assert(sameName.ok);
+  assert.notEqual(sameName.token, first.token);
+  assert.equal(db.select().from(schema.rsvps).all().length, 2);
+});
+
+test("public RSVP rejects unpublished/missing invitations and quota abuse without creating guests", async (t) => {
+  const { db, asyncDb, invitation, guest } = fixture(t);
+  const input = { slug: invitation.slug, name: "Tamu", status: "attending" as const, attendanceCount: 21, wish: null };
+  assert.equal((await savePublicRsvp(asyncDb, input)).ok, false);
+  assert.equal((await savePublicRsvp(asyncDb, { ...input, attendanceCount: 4 }, guest.shareToken)).ok, false);
+  assert.equal((await savePublicRsvp(asyncDb, { ...input, slug: "missing", attendanceCount: 1 })).ok, false);
+  db.update(schema.invitations).set({ status: "unpublished" }).where(eq(schema.invitations.id, invitation.id)).run();
+  assert.equal((await savePublicRsvp(asyncDb, { ...input, attendanceCount: 1 })).ok, false);
+  assert.equal(db.select().from(schema.guests).all().length, 1);
+  assert.equal(db.select().from(schema.rsvps).all().length, 0);
+});
+
+test("a browser token from another invitation never edits its guest", async (t) => {
+  const { db, asyncDb, invitation, guest } = fixture(t);
+  db.insert(schema.invitations).values({ ownerId: randomUUID(), slug: "other-wedding", templateId: "classic", templateVersion: 1, status: "published" }).run();
+  const result = await savePublicRsvp(asyncDb, { slug: "other-wedding", name: "Other", status: "attending", attendanceCount: 1, wish: null }, guest.shareToken);
+  assert(result.ok);
+  assert.notEqual(result.token, guest.shareToken);
+  assert.equal(db.select().from(schema.guests).where(eq(schema.guests.id, guest.id)).get()!.name, guest.name);
+  assert.equal(db.select().from(schema.guests).where(eq(schema.guests.invitationId, invitation.id)).all().length, 1);
+});
 
 test("SQLite files are private and public/symlink paths are refused", (t) => {
   const { path, directory, client } = fixture(t);

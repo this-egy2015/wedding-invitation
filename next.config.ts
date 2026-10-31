@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
     localPatterns: [{ pathname: "/berubah/**", search: "" }, { pathname: "/_next/static/media/**", search: "" }],
     minimumCacheTTL: 60,
   },
+  async redirects() {
+    return [{ source: "/demo-gaby-afdhal", destination: "/gaby-afdhal", permanent: true }];
+  },
   async headers() {
     return [
       {

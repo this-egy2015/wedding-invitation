@@ -90,7 +90,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
             ))}
           </select>
         </div>
-        <Field name="coverImageUrl" label="Path foto cover" defaultValue={initial?.coverImageUrl} required hint="Contoh: /berubah/demo-gaby-afdhal/cover.jpg" />
+        <Field name="coverImageUrl" label="Path foto cover" defaultValue={initial?.coverImageUrl} required hint="Contoh: /berubah/gaby-afdhal/cover.jpg" />
         <Field
           name="coverPortraitUrl"
           label="Path foto bingkai cover (opsional)"

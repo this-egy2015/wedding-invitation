@@ -10,8 +10,9 @@ export type TemplateGuest = {
 };
 
 export type TemplateProps = {
+  slug: string;
   content: InvitationContent;
-  /** Present only when the URL carries a valid personal token. */
+  /** Present when a personal URL or this browser's RSVP cookie matches. */
   guest: TemplateGuest | null;
   token: string | null;
   wishes: { id: string; name: string; partnerName: string | null; wish: string | null }[];

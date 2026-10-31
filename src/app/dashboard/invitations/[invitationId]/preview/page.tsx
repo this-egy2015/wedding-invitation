@@ -25,6 +25,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ invita
       <p className="text-sm text-neutral-600">Preview draft (belum tentu sama dengan versi publik).</p>
       <div className="overflow-hidden rounded-xl border">
         <template.Component
+          slug={invitation.slug}
           content={invitation.draftContent}
           guest={{ name: "Nama Tamu", partnerName: null, allowedGuestCount: 2, rsvpStatus: null, attendanceCount: null, wish: null }}
           token={null}

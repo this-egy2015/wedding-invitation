@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { getGuestByToken, listVisibleWishes } from "@/features/guests/queries";
 import { getPublishedInvitation } from "@/features/invitations/queries";
 import { formatEventDate } from "@/lib/time";
@@ -31,9 +32,10 @@ export default async function InvitationPage({ params, searchParams }: Props) {
   if (!invitation || !template) notFound();
   const { to } = await searchParams;
   const token = typeof to === "string" ? to : null;
+  const visitorToken = token ?? (await cookies()).get(`rsvp-${idUndangan}`)?.value;
   const [guest, wishes] = await Promise.all([
-    token ? getGuestByToken(invitation.id, token) : null,
+    visitorToken ? getGuestByToken(invitation.id, visitorToken) : null,
     listVisibleWishes(invitation.id),
   ]);
-  return <main className="min-h-dvh bg-cocoa"><template.Component content={invitation.content} guest={guest} token={guest ? token : null} wishes={wishes} preview={false} /></main>;
+  return <main className="min-h-dvh bg-cocoa"><template.Component slug={idUndangan} content={invitation.content} guest={guest} token={guest ? token : null} wishes={wishes} preview={false} /></main>;
 }

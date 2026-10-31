@@ -11,9 +11,9 @@ nvm use
 make seeded
 ```
 
-Target tersebut menjalankan Supabase lokal → migrasi SQLite → seed teks/gambar → dev server, berurutan dan berhenti jika ada tahap gagal. Kredensial tetap perlu dikonfigurasi. Untuk demo yang sudah ada, owner dapat dibaca dari SQLite.
+Target tersebut menjalankan Supabase lokal → migrasi SQLite → seed teks/gambar → dev server, berurutan dan berhenti jika ada tahap gagal. Kredensial tetap perlu dikonfigurasi. Untuk undangan yang sudah ada, owner dapat dibaca dari SQLite.
 
-Buka **http://localhost:3000/demo-gaby-afdhal**. Route `/` dan `/home` memang menampilkan 404 “Undangan tidak ditemukan”. Untuk penggunaan berikutnya tanpa menimpa konten demo, cukup `make services` lalu `make dev`.
+Buka **http://localhost:3000/gaby-afdhal**. Route `/` dan `/home` memang menampilkan 404 “Undangan tidak ditemukan”. Untuk penggunaan berikutnya tanpa mengulang inisialisasi undangan, cukup `make services` lalu `make dev`.
 
 ## Setup dari clone atau database kosong
 
@@ -62,9 +62,9 @@ Ganti placeholder sebelum menjalankan seed. Seed mengambil service role key lang
 2. Di **Authentication → Users**, buat user lokal melalui **Add user / Create user**, atau gunakan user yang sudah ada.
 3. Salin UUID user itu ke `SEED_OWNER_ID` di `.env.local`. Gunakan alamat email user yang sama saat login dashboard nanti.
 
-Seed memverifikasi akun tersebut melalui Supabase Auth. UUID acak tidak cukup. Jika demo sudah dimiliki akun lain, gunakan owner demo tersebut; seed tidak mengambil alih kepemilikan. Tidak ada password/login admin bawaan dalam repo.
+Seed memverifikasi akun tersebut melalui Supabase Auth. UUID acak tidak cukup. Jika undangan sudah dimiliki akun lain, gunakan owner undangan tersebut; seed tidak mengambil alih kepemilikan. Tidak ada password/login admin bawaan dalam repo.
 
-Alternatif pada DB baru: isi `SEED_OWNER_EMAIL` tanpa `SEED_OWNER_ID`. Seed mencari akun dengan email itu atau membuat akun belum terverifikasi, tanpa password dan tanpa mengirim email. Login tetap memakai magic link. Owner demo yang sudah ada selalu dipertahankan jika UUID tidak ditentukan.
+Alternatif pada DB baru: isi `SEED_OWNER_EMAIL` tanpa `SEED_OWNER_ID`. Seed mencari akun dengan email itu atau membuat akun belum terverifikasi, tanpa password dan tanpa mengirim email. Login tetap memakai magic link. Owner undangan yang sudah ada selalu dipertahankan jika UUID tidak ditentukan.
 
 ### 4. Migrasi, seed, dan jalankan
 
@@ -85,18 +85,18 @@ make seed
 
 | Isi | Hasil |
 |---|---|
-| Undangan | `/demo-gaby-afdhal`, status published |
+| Undangan | `/gaby-afdhal`, status published |
 | Teks | Nama/orang tua, urutan anak, ayat, jadwal, venue, alamat dan link Maps sesuai prototype |
 | Gambar | 37 gambar: cover, bingkai, dua mempelai, kutipan, dua peta, 30 foto galeri |
-| Server aset | Bucket publik `wedding-assets`, prefix `berubah/demo-gaby-afdhal/`; URL aplikasi `/berubah/demo-gaby-afdhal/...` |
-| Tamu | 4 contoh: belum konfirmasi, 2 hadir, 1 tidak hadir |
-| RSVP/ucapan | 3 respons dan ucapan contoh pada seed pertama |
-| Tanda kasih | Rekening contoh, bukan untuk transfer |
+| Server aset | Bucket publik `wedding-assets`, prefix `berubah/gaby-afdhal/`; URL aplikasi `/berubah/gaby-afdhal/...` |
+| Tamu | Awalnya kosong; diisi dari form publik atau dashboard pemilik |
+| RSVP/ucapan | Awalnya kosong; tersimpan dari kiriman tamu |
+| Tanda kasih | Kosong sampai pemilik memasukkan rekening yang benar |
 | Musik | Kosong karena tidak ada berkas sumber |
 
-Fixture teks ada di `scripts/fixtures/demo-gaby-afdhal.json`; sumber gambar di `prototype/assets/`. Ornamen UI tetap di `src/templates/classic/assets/`, terpisah dari foto konten.
+Fixture teks ada di `scripts/fixtures/gaby-afdhal.json`; sumber gambar di `prototype/assets/`. Ornamen UI tetap di `src/templates/classic/assets/`, terpisah dari foto konten.
 
-Seed ulang **menimpa draft/published demo** dan meng-upload ulang gambarnya. Pada mode lokal, backup dibuat sebelum perubahan; tamu/token/respons/moderasi yang sudah ada serta undangan lain dipertahankan. Untuk Turso, siapkan backup/export lewat layanannya terlebih dahulu. Jangan menjalankan seed untuk mempertahankan edit manual pada konten demo—gunakan `make dev` saja.
+Seed ulang **tidak menimpa konten/status, gambar, tamu, respons, atau moderasi yang sudah ada**. Seed hanya membuat undangan jika belum tersedia. Untuk memperbarui konten, gunakan dashboard; sebelum perubahan produksi, siapkan backup Turso dan Storage.
 
 File baru/berubah ditempatkan pada `wedding-assets/berubah/<slug>/...` melalui Storage, kemudian isi path `/berubah/<slug>/<file>` di editor. Pakai nama file baru saat mengganti foto agar cache memakai versi baru. Route aplikasi hanya melayani GET/HEAD; tidak ada upload anonim. Media tersedia melalui server aplikasi tanpa menyimpan file dalam filesystem Vercel.
 
@@ -104,10 +104,10 @@ File baru/berubah ditempatkan pada `wedding-assets/berubah/<slug>/...` melalui S
 
 1. Buka **http://localhost:3000/login** dan masukkan email owner.
 2. Untuk Supabase lokal, buka kotak email uji di **http://127.0.0.1:54324**, lalu buka magic link yang diterima.
-3. Masuk ke **http://localhost:3000/dashboard/invitations**, pilih demo, lalu buka daftar tamunya.
-4. Salin link personal tamu contoh yang belum konfirmasi, lalu buka link tersebut untuk menguji RSVP. Token dibuat acak; jangan mengarang nilai `?to=`.
+3. Masuk ke **http://localhost:3000/dashboard/invitations**, pilih undangan, lalu buka daftar tamunya.
+4. Tambahkan tamu lewat dashboard jika membutuhkan undangan personal dan kuota tertentu, lalu salin linknya. Token dibuat acak; jangan mengarang nilai `?to=`.
 
-URL demo tanpa token tetap menampilkan undangan, tetapi form RSVP memerlukan link personal. Jika halaman masih menampilkan konten sebelum seed, buka editor demo sebagai owner lalu klik **Publikasikan Ulang** untuk menyegarkan cache publik; reload browser saja belum tentu cukup.
+URL undangan tanpa token menyediakan form nama, kehadiran, jumlah tamu (1–20), dan ucapan. Kiriman disimpan di database dan ucapan langsung diperbarui. Cookie HttpOnly mengingat respons pada browser yang sama; perangkat baru atau cookie dihapus dianggap tamu baru. Nama tidak digunakan untuk menebak/mengambil alih respons orang lain. Jika halaman masih menampilkan konten sebelum seed, buka editor undangan sebagai owner lalu klik **Publikasikan Ulang** untuk menyegarkan cache publik; reload browser saja belum tentu cukup.
 
 ## Perintah harian
 
@@ -137,7 +137,7 @@ Environment, SQLite, dan layanan Supabase tetap diperlukan. `Ctrl+C` menghentika
 | `SEED_OWNER_ID` gagal / user tidak ada | Salin UUID akun dari Auth pada Supabase lokal yang sama |
 | `no such table: invitations` | Gunakan `make seed`, yang menjalankan migrasi sebelum seed |
 | Direktori SQLite tidak privat | Untuk path default yang sudah ada, jalankan `chmod 700 data` |
-| Gambar tidak tampil | Pastikan Supabase hidup dan objek ada di `wedding-assets/berubah/<slug>/...`; ulangi seed lalu Publikasikan Ulang |
+| Gambar tidak tampil | Pastikan Supabase hidup dan objek ada di `wedding-assets/berubah/<slug>/...`; pulihkan objek dari backup Storage atau unggah kembali aset yang hilang |
 | Port 3000 dipakai | Hentikan proses aplikasi sebelumnya; konfigurasi Auth repo memakai port 3000 |
 | Demo lama masih tampil | Klik Publikasikan Ulang lewat dashboard pemilik untuk invalidasi cache |
 
@@ -167,7 +167,7 @@ Jika env sudah tersinkron ke Vercel, `npx vercel env pull .env.vercel.remote --e
 make seed-remote
 ```
 
-Target ini hanya membaca `.env.production.local`, menjalankan migrasi ke Turso, memverifikasi owner hosted, lalu meng-upload 37 foto dan seed demo. Jika konfigurasi remote tidak lengkap, proses gagal tanpa fallback ke DB lokal. Token tamu lokal tidak diimpor otomatis.
+Target ini hanya membaca `.env.production.local`, menjalankan migrasi ke Turso, memverifikasi owner hosted, lalu meng-upload 37 foto dan inisialisasi undangan. Jika konfigurasi remote tidak lengkap, proses gagal tanpa fallback ke DB lokal. Token tamu lokal tidak diimpor otomatis.
 
 Jika secret hanya tersedia di Vercel, seed dapat dijalankan sekali di build remote. Buat konfigurasi sementara di luar repo, misalnya `/tmp/wedding-vercel-seed.json`:
 
@@ -185,12 +185,12 @@ npx vercel --prod --yes --local-config /tmp/wedding-vercel-seed.json \
   --build-env SEED_OWNER_EMAIL=owner@example.com
 ```
 
-Secret diinjeksikan langsung oleh Vercel. Jangan mengubah build command default proyek menjadi seed: untuk deployment berikutnya gunakan `npx vercel --prod` biasa atau push Git. Seed ulang menimpa konten demo dan gambarnya. Jika konfigurasi `vercel.json` berubah, samakan konfigurasi sementara sebelum memakai cara ini.
+Secret diinjeksikan langsung oleh Vercel. Jangan mengubah build command default proyek menjadi seed: untuk deployment berikutnya gunakan `npx vercel --prod` biasa atau push Git. Seed ulang mempertahankan konten undangan dan gambarnya. Jika konfigurasi `vercel.json` berubah, samakan konfigurasi sementara sebelum memakai cara ini.
 
-Jika demo pernah dibuka sebelum seed, Vercel dapat mempertahankan cache 404 lintas deployment. Setelah seed berhasil, terbitkan ulang dari dashboard atau hapus hanya cache bertag demo lewat CLI yang sudah di-link:
+Jika undangan pernah dibuka sebelum seed, Vercel dapat mempertahankan cache 404 lintas deployment. Setelah seed berhasil, terbitkan ulang dari dashboard atau hapus hanya cache bertag undangan lewat CLI yang sudah di-link:
 
 ```bash
-npx vercel cache dangerously-delete --tag invitation:demo-gaby-afdhal --yes
+npx vercel cache dangerously-delete --tag invitation:gaby-afdhal --yes
 ```
 
 Perintah ini menghapus cache, bukan data undangan di Turso.
@@ -199,6 +199,6 @@ Perintah ini menghapus cache, bukan data undangan di Turso.
 
    `SITE_URL` dapat dikosongkan dengan menghapus variabelnya pada Vercel: Production memakai `https://${VERCEL_PROJECT_PRODUCTION_URL}` (fallback `VERCEL_URL`), sedangkan Preview memakai `https://${VERCEL_URL}`. Nilai eksplisit tetap diutamakan. Pastikan akses System Environment Variables aktif pada pengaturan Vercel. Untuk seed dari mesin lokal, `.env.production.local` tetap perlu SITE_URL eksplisit karena domain sistem Vercel tidak otomatis tersedia. Jika URL callback harus stabil/custom, isi SITE_URL dengan domain tersebut.
 7. Pada Supabase Auth, set **Site URL** ke domain produksi dan tambahkan `https://<domain-aplikasi>.vercel.app/auth/callback` ke **Redirect URLs**. Delivery email produksi memakai konfigurasi Supabase hosted; inbox Docker port 54324 hanya untuk lokal. [SMTP bawaan Supabase hanya mengirim ke email anggota tim proyek](https://supabase.com/docs/guides/auth/auth-smtp); untuk alamat lain, konfigurasi SMTP sendiri.
-8. Deploy dengan `npx vercel --prod`, lalu buka `https://<domain-aplikasi>.vercel.app/demo-gaby-afdhal`. Periksa `/login`, login owner, link personal tamu, dan penyimpanan RSVP. `/` tetap 404 sesuai desain.
+8. Deploy dengan `npx vercel --prod`, lalu buka `https://<domain-aplikasi>.vercel.app/gaby-afdhal`. Periksa `/login`, login owner, link personal tamu, dan penyimpanan RSVP. `/` tetap 404 sesuai desain.
 
 Jika memakai deployment preview, gunakan environment Preview dan callback URL yang sesuai; jangan mengarahkan pengujian yang mengubah data ke produksi tanpa sengaja. `make backup` hanya membackup SQLite lokal; backup Turso dan Storage harus dikelola melalui layanan masing-masing.

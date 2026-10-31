@@ -1,12 +1,12 @@
 // Run against a local app with a published invitation containing at least two gallery photos.
-// Usage: node scripts/smoke-gallery.mjs http://localhost:3000/demo-gaby-afdhal
+// Usage: node scripts/smoke-gallery.mjs http://localhost:3000/gaby-afdhal
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const url = process.argv[2] ?? "http://localhost:3000/demo-gaby-afdhal";
+const url = process.argv[2] ?? "http://localhost:3000/gaby-afdhal";
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const profile = await mkdtemp(join(tmpdir(), "gallery-smoke-"));
 const chrome = spawn(process.env.CHROME_BIN ?? "google-chrome", ["--headless=new", "--no-sandbox", "--disable-dev-shm-usage", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });

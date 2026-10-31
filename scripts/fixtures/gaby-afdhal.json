@@ -73,11 +73,5 @@
     "figma-1-2/gallery/29.jpg",
     "figma-1-2/gallery/30.jpg"
   ],
-  "gifts": [
-    {
-      "bank": "Bank Demo",
-      "accountNumber": "00000000000000",
-      "accountName": "Rekening Contoh — Bukan untuk Transfer"
-    }
-  ]
+  "gifts": []
 }

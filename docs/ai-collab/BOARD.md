@@ -4,9 +4,11 @@
 
 | Agen | Branch | Tugas | File yang disentuh |
 |---|---|---|---|
-| — | — | Seed dan deploy hosted selesai; pengaturan callback/login Supabase menunggu pemilik | — |
+| — | — | Undangan produksi dan RSVP publik selesai; callback/login Supabase masih menunggu pemilik | — |
 
 ## Handoff terakhir
+
+- **2026-10-31, codex**: `codex/production-rsvp`: undangan live di https://wedding-invitation-lovat-theta.vercel.app/gaby-afdhal; link lama redirect/query tetap. Data tamu/ucapan/rekening contoh dibersihkan secara selektif setelah snapshot privat. Form umum bisa membuat/memperbarui RSVP lewat cookie HttpOnly; link personal tetap aktif. Ucapan langsung dibaca dari DB dan mengikuti moderasi. Seed tidak membuat contoh atau menimpa existing. Typecheck, 24 tes, build dan smoke hosted publik lulus termasuk isolasi token dari client props. Lihat `notes/2026-10-31-codex-production-rsvp.md`.
 
 - **2026-10-31, codex**: `codex/hosted-seed`: Turso Starter Tokyo dibuat dan dihubungkan ke Production; migrasi dan seed hosted selesai dengan email owner yang diberikan pemilik. Supabase menyimpan 37 gambar, Turso berisi demo published, 4 tamu dan 3 ucapan. Live: https://wedding-invitation-lovat-theta.vercel.app/demo-gaby-afdhal. Typecheck, 21 tes, build lokal/remote, media/optimizer, browser mobile/carousel dan penyimpanan RSVP hosted lulus; tamu tes dibersihkan. Cache 404 sebelum seed dihapus melalui tag CLI. Pending: pemilik menyimpan Site URL/Redirect URL Supabase; login/email hosted belum diuji. Lihat `notes/2026-10-31-codex-hosted-seed.md`.
 
@@ -40,7 +42,7 @@
 ## Pertanyaan terbuka untuk pemilik repo
 
 - GitHub sudah publik dan deploy key SSH berizin tulis sudah ditambahkan; push berhasil.
-- Pilihan akhir: aplikasi penuh Vercel, database/storage remote. Supabase hosted dan Turso Starter (`wedding-invitation-db`, Tokyo) sudah terhubung ke Production; demo telah di-seed dan deployment Ready. Pemilik sedang mengatur Site URL/Redirect URL Supabase dengan panduan yang diberikan; login email belum diverifikasi. Variabel Supabase bertipe Secret hanya tersedia saat build/runtime remote, hasil env pull berisi placeholder.
+- Pilihan akhir: aplikasi penuh Vercel, database/storage remote. Supabase hosted dan Turso Starter (`wedding-invitation-db`, Tokyo) sudah terhubung ke Production; undangan produksi `/gaby-afdhal` dan RSVP publik sudah live. Pemilik sedang mengatur Site URL/Redirect URL Supabase dengan panduan yang diberikan; login email belum diverifikasi. Variabel Supabase bertipe Secret hanya tersedia saat build/runtime remote, hasil env pull berisi placeholder.
 
 - Upload media dari dashboard belum dibuat; seed/admin memakai Supabase Storage pada namespace `berubah/<slug>`.
 - Rate limiting: cukup Vercel WAF, atau perlu di level aplikasi?
