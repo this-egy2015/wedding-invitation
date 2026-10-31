@@ -5,7 +5,7 @@ import type { TemplateProps } from "../types";
 import { Countdown } from "./Countdown";
 import { CoverGate } from "./CoverGate";
 import { Gallery } from "./Gallery";
-import { RsvpForm } from "./RsvpForm";
+import { RsvpSection } from "./RsvpSection";
 import styles from "./classic.module.css";
 import pattern from "./assets/minang-pattern.png";
 import house from "./assets/rumah-gadang.png";
@@ -67,7 +67,7 @@ function Location({ event }: { event: Content["akad"] }) {
   );
 }
 
-export function ClassicTemplate({ slug, content, guest, token, wishes, preview }: TemplateProps) {
+export function ClassicTemplate({ slug, content, guest, token, preview }: TemplateProps) {
   const coupleName = `${content.bride.nickname} & ${content.groom.nickname}`;
   const guestName = guest ? [guest.name, guest.partnerName].filter(Boolean).join(" & ") : null;
   return (
@@ -134,20 +134,7 @@ export function ClassicTemplate({ slug, content, guest, token, wishes, preview }
 
         <section className={styles.rsvpSection} data-section="rsvp">
           <p className={styles.rsvpIntro}>Kami mohon kesediaan Bapak/Ibu/Saudara/i untuk mengisi konfirmasi kehadiran di bawah ini.</p>
-          <div className={styles.rsvpCard}>
-            <h2>Konfirmasi Kehadiran</h2>
-            {preview ? <p>Form RSVP tidak aktif di mode preview.</p> : (
-              <RsvpForm key={token ?? slug} slug={slug} token={token} guest={guest} />
-            )}
-          </div>
-          <div className={styles.wishes} aria-label="Ucapan tamu" aria-live="polite">
-            {wishes.length === 0 ? <p className={styles.emptyWishes}>Belum ada ucapan.</p> : wishes.map((wish) => (
-              <article key={wish.id}>
-                <h3>{[wish.name, wish.partnerName].filter(Boolean).join(" & ")}</h3>
-                <p>{wish.wish}</p>
-              </article>
-            ))}
-          </div>
+          <RsvpSection slug={slug} token={token} guest={guest} preview={preview} />
         </section>
 
         {content.gifts.length > 0 && (

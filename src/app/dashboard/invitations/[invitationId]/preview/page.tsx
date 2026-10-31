@@ -29,7 +29,6 @@ export default async function PreviewPage({ params }: { params: Promise<{ invita
           content={invitation.draftContent}
           guest={{ name: "Nama Tamu", partnerName: null, allowedGuestCount: 2, rsvpStatus: null, attendanceCount: null, wish: null }}
           token={null}
-          wishes={[]}
           preview
         />
       </div>

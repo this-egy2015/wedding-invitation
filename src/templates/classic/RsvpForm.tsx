@@ -1,20 +1,38 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
-import { submitRsvpAction, submitPublicRsvpAction } from "@/features/rsvp/actions";
+import { useState, type FormEvent } from "react";
+import { submitRsvpAction, submitPublicRsvpAction, type RsvpFormState } from "@/features/rsvp/actions";
 import type { TemplateGuest } from "../types";
 import styles from "./classic.module.css";
 
-export function RsvpForm({ slug, token, guest }: { slug: string; token: string | null; guest: TemplateGuest | null }) {
-  const [state, formAction] = useActionState(token ? submitRsvpAction : submitPublicRsvpAction, { ok: false, message: "" });
-  const [pending, startTransition] = useTransition();
+export function RsvpForm({ slug, token, guest, onSaved }: {
+  slug: string;
+  token: string | null;
+  guest: TemplateGuest | null;
+  onSaved?: () => void;
+}) {
+  const [state, setState] = useState<RsvpFormState>({ ok: false, message: "" });
+  const [pending, setPending] = useState(false);
   const [status, setStatus] = useState(guest?.rsvpStatus ?? "");
+  const action = token ? submitRsvpAction : submitPublicRsvpAction;
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    setPending(true);
+    try {
+      const result = await action(state, data);
+      setState(result);
+      if (result.ok) onSaved?.();
+    } catch {
+      setState({ ok: false, message: "Gagal menyimpan, coba lagi" });
+    } finally {
+      setPending(false);
+    }
+  }
+
   return (
-    <form className={styles.rsvpForm} onSubmit={(event) => {
-      event.preventDefault();
-      const data = new FormData(event.currentTarget);
-      startTransition(() => formAction(data));
-    }}>
+    <form className={styles.rsvpForm} onSubmit={handleSubmit}>
       {token ? <input type="hidden" name="token" value={token} /> : <input type="hidden" name="slug" value={slug} />}
       <div hidden aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
       <label>Nama<input name="name" defaultValue={[guest?.name, guest?.partnerName].filter(Boolean).join(" & ")} readOnly={!!token} required maxLength={100} autoComplete="name" /></label>

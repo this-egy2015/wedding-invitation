@@ -173,10 +173,11 @@
 .rsvpForm .button { justify-self: center; font-family: var(--font-cormorant), Georgia, serif; }
 .formStatus { color: #b42318; font-size: 15px; }
 .formStatus[data-ok="true"] { color: #166534; }
-.wishes { display: grid; gap: 22px; width: min(304px, calc(100% - 64px)); max-height: 460px; overflow-y: auto; margin: 40px auto 0; padding: 0 10px 12px 0; }
-.wishes article { min-height: 99px; padding: 15px 21px; border-radius: 17px; background: white; box-shadow: var(--shadow); }
-.wishes h3 { font-size: 20px; font-weight: 700; }
-.wishes article p { margin-top: 6px; font-size: 15px; white-space: pre-wrap; }
+.wishes { display: grid; gap: 22px; width: min(304px, calc(100% - 64px)); max-height: 605px; overflow-y: auto; margin: 40px auto 0; padding: 0 10px 12px 0; }
+.wishes article { height: 99px; padding: 15px 21px; border-radius: 17px; background: white; box-shadow: var(--shadow); overflow: hidden; }
+.wishes h3 { font-size: 20px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wishes article p { margin-top: 6px; font-size: 15px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.wishSentinel { height: 1px; }
 .emptyWishes { color: var(--blush); text-align: center; }
 .gifts { display: grid; gap: 32px; padding: 0 0 150px; }
 .giftCard { width: min(304px, calc(100% - 64px)); min-height: 279px; margin: 0 auto; padding: 20px 22px; border-radius: 29px; background: white; box-shadow: var(--shadow); text-align: center; }

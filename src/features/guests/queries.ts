@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, like, isNotNull, or } from "drizzle-orm";
+import { and, asc, count, eq, like, or } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
@@ -73,12 +73,3 @@ export async function getGuestByToken(invitationId: string, token: string) {
   return guest ?? null;
 }
 
-export async function listVisibleWishes(invitationId: string) {
-  return db
-    .select({ id: rsvps.id, name: guests.name, partnerName: guests.partnerName, wish: rsvps.wish, respondedAt: rsvps.respondedAt })
-    .from(rsvps)
-    .innerJoin(guests, eq(guests.id, rsvps.guestId))
-    .where(and(eq(guests.invitationId, invitationId), eq(rsvps.isWishVisible, true), isNotNull(rsvps.wish)))
-    .orderBy(desc(rsvps.respondedAt))
-    .limit(50);
-}

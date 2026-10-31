@@ -15,7 +15,6 @@ export type TemplateProps = {
   /** Present when a personal URL or this browser's RSVP cookie matches. */
   guest: TemplateGuest | null;
   token: string | null;
-  wishes: { id: string; name: string; partnerName: string | null; wish: string | null }[];
   /** Owner preview of a draft: RSVP is disabled. */
   preview: boolean;
 };
