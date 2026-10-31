@@ -50,7 +50,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
       <Field name={`${key}.parents`} label="Putra/Putri dari" defaultValue={initial?.[key].parents} required />
       <Field name={`${key}.birthOrder`} label="Urutan anak (opsional)" defaultValue={initial?.[key].birthOrder} hint="Contoh: pertama, kedua, bungsu." />
       <Field name={`${key}.instagram`} label="Instagram (tanpa @)" defaultValue={initial?.[key].instagram} />
-      <Field name={`${key}.photoUrl`} label="URL foto" type="url" defaultValue={initial?.[key].photoUrl} />
+      <Field name={`${key}.photoUrl`} label="Path foto" defaultValue={initial?.[key].photoUrl} />
     </Section>
   );
 
@@ -63,7 +63,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
       <Field name={`${key}.venue`} label="Tempat" defaultValue={initial?.[key].venue} required />
       <Field name={`${key}.address`} label="Alamat" defaultValue={initial?.[key].address} required />
       <Field name={`${key}.mapsUrl`} label="Link Google Maps" type="url" defaultValue={initial?.[key].mapsUrl} />
-      <Field name={`${key}.mapImageUrl`} label="URL gambar peta (opsional)" type="url" defaultValue={initial?.[key].mapImageUrl} />
+      <Field name={`${key}.mapImageUrl`} label="Path gambar peta (opsional)" defaultValue={initial?.[key].mapImageUrl} />
     </Section>
   );
 
@@ -90,11 +90,10 @@ export function ContentForm({ initial, timezones, action }: Props) {
             ))}
           </select>
         </div>
-        <Field name="coverImageUrl" label="URL foto cover" type="url" defaultValue={initial?.coverImageUrl} required />
+        <Field name="coverImageUrl" label="Path foto cover" defaultValue={initial?.coverImageUrl} required hint="Contoh: /berubah/demo-gaby-afdhal/cover.jpg" />
         <Field
           name="coverPortraitUrl"
-          label="URL foto bingkai cover (opsional)"
-          type="url"
+          label="Path foto bingkai cover (opsional)"
           defaultValue={initial?.coverPortraitUrl}
           hint="Foto di dalam bingkai heksagon. Jika kosong, memakai foto cover."
         />
@@ -104,7 +103,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
           defaultValue={initial?.coverTitle}
           hint='Jika kosong, memakai "Maimbau Baralek".'
         />
-        <Field name="musicUrl" label="URL musik (opsional)" type="url" defaultValue={initial?.musicUrl} />
+        <Field name="musicUrl" label="Path musik (opsional)" defaultValue={initial?.musicUrl} />
       </Section>
 
       {person("groom", "Mempelai Pria")}
@@ -118,7 +117,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
           <textarea id="quote.text" name="quote.text" rows={3} defaultValue={initial?.quote.text} className="input" />
         </div>
         <Field name="quote.source" label="Sumber" defaultValue={initial?.quote.source} />
-        <Field name="quote.imageUrl" label="URL foto kutipan (opsional)" type="url" defaultValue={initial?.quote.imageUrl} />
+        <Field name="quote.imageUrl" label="Path foto kutipan (opsional)" defaultValue={initial?.quote.imageUrl} />
       </Section>
 
       {event("akad", "Akad")}
@@ -126,7 +125,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
 
       <Section title="Galeri">
         <label htmlFor="galleryUrls" className="label">
-          URL foto, satu per baris (maks. 30)
+          Path foto /berubah/idUndangan/file, satu per baris (maks. 30)
         </label>
         <textarea
           id="galleryUrls"

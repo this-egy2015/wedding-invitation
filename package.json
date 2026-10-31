@@ -17,6 +17,7 @@
     "db:seed": "node scripts/seed-db.ts"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.4",
     "better-sqlite3": "^13.0.3",

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { env } from "../../env.ts";
+import { isAssetPath } from "../../lib/asset-path.ts";
 
 export const TIMEZONES = ["Asia/Jakarta", "Asia/Makassar", "Asia/Jayapura"] as const;
 
@@ -7,17 +7,10 @@ const required = (max: number) => z.string().trim().min(1, "Wajib diisi").max(ma
 const optional = (max: number) => z.string().trim().max(max);
 const localDateTime = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Format tanggal/jam tidak valid");
 
-// Match the asset origin and path boundary used by next/image.
 const asset = z
   .string()
   .trim()
-  .refine((v) => {
-    if (!URL.canParse(v)) return false;
-    const url = new URL(v);
-    const base = new URL(env.R2_PUBLIC_URL);
-    return url.origin === base.origin && !url.username && !url.password &&
-      url.pathname.startsWith(`${base.pathname.replace(/\/$/, "")}/`);
-  }, "URL harus berasal dari server aset yang dikonfigurasi");
+  .refine(isAssetPath, "Gunakan path /berubah/<idUndangan>/<file> pada server ini");
 const optionalAsset = z.union([z.literal(""), asset]);
 const optionalHttpsUrl = z.union([
   z.literal(""),

@@ -6,6 +6,20 @@ export const env = z
     SUPABASE_URL: z.url(),
     SUPABASE_ANON_KEY: z.string().min(1),
     SITE_URL: z.url(),
-    R2_PUBLIC_URL: z.url(),
+    TURSO_DATABASE_URL: z.url().optional(),
+    TURSO_AUTH_TOKEN: z.string().min(1).optional(),
   })
-  .parse(process.env);
+  .superRefine((value, context) => {
+    if (!process.env.VERCEL) return;
+    for (const key of ["SUPABASE_URL", "SITE_URL"] as const) {
+      const url = new URL(value[key]);
+      if (url.protocol !== "https:" || ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)) {
+        context.addIssue({ code: "custom", path: [key], message: "Vercel memerlukan URL HTTPS hosted, bukan localhost." });
+      }
+    }
+  })
+  .parse({
+    ...process.env,
+    SUPABASE_URL: process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL,
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });

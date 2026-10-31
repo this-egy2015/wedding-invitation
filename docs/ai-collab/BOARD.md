@@ -4,9 +4,13 @@
 
 | Agen | Branch | Tugas | File yang disentuh |
 |---|---|---|---|
-| — | — | Pekerjaan lokal selesai; push/deploy menunggu akses layanan | — |
+| codex | codex/vercel-remote-assets | Kode remote selesai; menunggu provisioning Supabase/Turso dan login Vercel | deploy/env hosted |
 
 ## Handoff terakhir
+
+- **2026-10-31, codex**: Origin SSH sudah dapat push ke `main`. Keputusan terakhir pemilik: aplikasi penuh di Vercel, dengan Turso (SQLite/libSQL) dan Supabase hosted Auth/Storage. Kode memakai transaksi async, seed/migrasi lokal maupun remote, URL media `/berubah/<slug>/...`, alias environment integrasi Supabase, dan region Vercel Singapore. Makefile/howto tersedia. Typecheck, tes, build lokal/simulasi config remote, smoke HTTP ownership/RSVP serta media/carousel lulus. Deployment sungguhan menunggu layanan/env hosted; lihat `notes/2026-10-31-codex-vercel-remote-assets.md`.
+
+- **2026-10-31, codex**: `codex/seeded-flow-howto` menambahkan `readme-howto.md` dan `Makefile`. `make seeded` menjalankan services → migrate → seed → dev secara berurutan; setup mempertahankan env lama. Panduan mencakup owner Auth, konfigurasi lokal, login/RSVP, cache, dan troubleshooting. Make orchestration diuji dengan stub terisolasi, `make check` (typecheck, 14 tes, build) lulus. Lihat `notes/2026-10-31-codex-seeded-flow-howto.md`.
 
 - **2026-10-31, codex**: Branch `codex/github-seed-vercel`: origin diarahkan ke repo yang diminta; riwayat Git dipertahankan. Seed lengkap `demo-gaby-afdhal` aktif (37 gambar via Supabase Storage, 30 galeri, 4 tamu + 3 ucapan contoh), repeatable tanpa mengganti token/respons lama. Foto kutipan/peta dan urutan anak menjadi konten opsional; validasi origin/path aset diperketat. Typecheck, 14 tes, build, seed ulang dan smoke HTTP lulus. Push tertahan akses repo (`Repository not found` pada akun lokal `egy2015`); percobaan deploy Vercel gagal karena belum login, dan SQLite file lokal/Auth localhost belum cocok untuk Vercel. Lihat `notes/2026-10-31-codex-github-seed-vercel.md`.
 
@@ -31,11 +35,10 @@
 
 ## Pertanyaan terbuka untuk pemilik repo
 
-- Berikan akses repo `this-egy2015/wedding-invitation` untuk akun GitHub lokal `egy2015`, atau koreksi URL repo.
-- Untuk Vercel, gunakan SQLite remote (Turso/libSQL) atau tetap SQLite lokal di VPS? Masih menunggu jawaban; belum mengubah provider.
-- Login Vercel dan konfigurasi Supabase Auth/asset server produksi belum tersedia; environment saat ini lokal.
+- GitHub sudah publik dan deploy key SSH berizin tulis sudah ditambahkan; push berhasil.
+- Pilihan akhir: aplikasi penuh Vercel, database/storage remote. Pemilik sedang provisioning Supabase Free Singapore melalui Vercel Marketplace. Masih perlu Turso, owner Auth hosted, SITE_URL/callback, dan login CLI Vercel.
 
-- Upload aset ke R2 (presigned URL): kapan dikerjakan, dan siapa (agen mana)?
+- Upload media dari dashboard belum dibuat; seed/admin memakai Supabase Storage pada namespace `berubah/<slug>`.
 - Rate limiting: cukup Vercel WAF, atau perlu di level aplikasi?
 - Migrasi dashboard ke shadcn/ui: ya/tidak?
 - Tidak ada pertanyaan Figma aktif: Frame 1 dan Frame 2 sudah diprototipekan secara mandiri.

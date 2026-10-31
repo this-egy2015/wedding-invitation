@@ -1,22 +1,13 @@
 import type { NextConfig } from "next";
 
-const r2 = new URL(process.env.R2_PUBLIC_URL ?? "https://invalid.local");
-
 const nextConfig: NextConfig = {
   // Private runtime data must never be copied into a deployment artifact.
   outputFileTracingExcludes: {
     "/*": ["./data/**/*", "./.env*", "./**/*.sqlite", "./**/*.sqlite-*", "./**/*.sqlite3", "./**/*.sqlite3-*", "./**/*.db", "./**/*.db-*"],
   },
   images: {
-    dangerouslyAllowLocalIP: r2.hostname === "127.0.0.1" || r2.hostname === "localhost",
-    remotePatterns: [
-      {
-        protocol: r2.protocol.slice(0, -1) as "http" | "https",
-        hostname: r2.hostname,
-        port: r2.port,
-        pathname: `${r2.pathname.replace(/\/$/, "")}/**`,
-      },
-    ],
+    localPatterns: [{ pathname: "/berubah/**", search: "" }, { pathname: "/_next/static/media/**", search: "" }],
+    minimumCacheTTL: 60,
   },
   async headers() {
     return [

@@ -4,6 +4,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomBytes, randomUUID } from "node:crypto";
 import { test, type TestContext } from "node:test";
+import { pathToFileURL } from "node:url";
+import { createClient } from "@libsql/client";
+import { drizzle as libsqlDrizzle } from "drizzle-orm/libsql";
 import { Worker } from "node:worker_threads";
 import Database from "better-sqlite3";
 import { eq } from "drizzle-orm";
@@ -19,11 +22,13 @@ function fixture(t: TestContext) {
   const client = openSqlite(path);
   const db = drizzle(client, { schema });
   migrate(db, { migrationsFolder: "./drizzle/sqlite" });
-  t.after(() => { if (client.open) client.close(); rmSync(directory, { recursive: true, force: true }); });
+  const remoteClient = createClient({ url: pathToFileURL(path).href, timeout: 5000 });
+  const asyncDb = libsqlDrizzle(remoteClient, { schema });
+  t.after(() => { remoteClient.close(); if (client.open) client.close(); rmSync(directory, { recursive: true, force: true }); });
   const invitation = db.insert(schema.invitations).values({ ownerId: randomUUID(), slug: "test-wedding", templateId: "classic", templateVersion: 1, status: "published" }).returning().get();
   const guest = db.insert(schema.guests).values({ invitationId: invitation.id, name: "Tamu", allowedGuestCount: 3, shareToken: randomBytes(16).toString("base64url") }).returning().get();
   const input = { token: guest.shareToken, status: "attending" as const, attendanceCount: 2, wish: "Selamat" };
-  return { directory, path, client, db, invitation, guest, input };
+  return { directory, path, client, db, asyncDb, invitation, guest, input };
 }
 
 test("SQLite files are private and public/symlink paths are refused", (t) => {
@@ -55,40 +60,40 @@ test("generated schema enforces foreign keys, uniqueness, statuses, tokens and R
   assert.throws(() => db.insert(schema.rsvps).values({ guestId: guest.id, status: "attending", attendanceCount: 1, wish: "x".repeat(501) }).run());
 });
 
-test("RSVP rejects invalid tokens/quota/unpublished invitations and preserves moderation on upsert", (t) => {
-  const { db, invitation, guest, input } = fixture(t);
-  assert.equal(saveRsvp(db, { ...input, token: "' OR 1=1 --" }).ok, false);
-  assert.equal(saveRsvp(db, { ...input, attendanceCount: 4 }).ok, false);
+test("RSVP rejects invalid tokens/quota/unpublished invitations and preserves moderation on upsert", async (t) => {
+  const { db, asyncDb, invitation, guest, input } = fixture(t);
+  assert.equal((await saveRsvp(asyncDb, { ...input, token: "' OR 1=1 --" })).ok, false);
+  assert.equal((await saveRsvp(asyncDb, { ...input, attendanceCount: 4 })).ok, false);
   assert.equal(db.select().from(schema.rsvps).all().length, 0);
-  assert.equal(saveRsvp(db, input).ok, true);
+  assert.equal((await saveRsvp(asyncDb, input)).ok, true);
   db.update(schema.rsvps).set({ isWishVisible: false }).where(eq(schema.rsvps.guestId, guest.id)).run();
-  assert.equal(saveRsvp(db, { ...input, status: "not_attending", attendanceCount: 3 }).ok, true);
+  assert.equal((await saveRsvp(asyncDb, { ...input, status: "not_attending", attendanceCount: 3 })).ok, true);
   const rows = db.select().from(schema.rsvps).all();
   assert.equal(rows.length, 1);
   assert.equal(rows[0].attendanceCount, 0);
   assert.equal(rows[0].isWishVisible, false);
   assert(rows[0].respondedAt instanceof Date);
   db.update(schema.invitations).set({ status: "unpublished" }).where(eq(schema.invitations.id, invitation.id)).run();
-  assert.equal(saveRsvp(db, input).ok, false);
+  assert.equal((await saveRsvp(asyncDb, input)).ok, false);
   db.delete(schema.invitations).where(eq(schema.invitations.id, invitation.id)).run();
   assert.equal(db.select().from(schema.guests).all().length, 0);
   assert.equal(db.select().from(schema.rsvps).all().length, 0);
 });
 
-test("guest updates stay scoped to their invitation and cannot reduce an already used quota", (t) => {
-  const { db, invitation, guest, input } = fixture(t);
+test("guest updates stay scoped to their invitation and cannot reduce an already used quota", async (t) => {
+  const { db, asyncDb, invitation, guest, input } = fixture(t);
   const changes = { name: "Updated", partnerName: null, allowedGuestCount: 1 };
-  assert.equal(updateGuestDetails(db, randomUUID(), guest.id, changes), "Tamu tidak ditemukan");
-  saveRsvp(db, input);
-  assert.match(updateGuestDetails(db, invitation.id, guest.id, changes)!, /kuota tidak boleh lebih kecil/);
+  assert.equal(await updateGuestDetails(asyncDb, randomUUID(), guest.id, changes), "Tamu tidak ditemukan");
+  await saveRsvp(asyncDb, input);
+  assert.match((await updateGuestDetails(asyncDb, invitation.id, guest.id, changes))!, /kuota tidak boleh lebih kecil/);
   const saved = db.select().from(schema.guests).where(eq(schema.guests.id, guest.id)).get()!;
   assert.equal(saved.name, "Tamu");
   assert.equal(saved.allowedGuestCount, 3);
 });
 
 test("online backup includes committed WAL data and stays private", async (t) => {
-  const { client, db, input, guest } = fixture(t);
-  saveRsvp(db, input);
+  const { client, asyncDb, input, guest } = fixture(t);
+  await saveRsvp(asyncDb, input);
   const backup = await backupSqlite(client);
   assert.equal(statSync(backup).mode & 0o777, 0o600);
   const restored = new Database(backup, { readonly: true });

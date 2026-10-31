@@ -1,7 +1,8 @@
 import { existsSync } from "node:fs";
 import { defineConfig } from "drizzle-kit";
 
-if (existsSync(".env.local")) process.loadEnvFile(".env.local");
+const envFile = process.env.APP_ENV_FILE ?? ".env.local";
+if (process.env.APP_ENV_FILE || existsSync(envFile)) process.loadEnvFile(envFile);
 
 export default defineConfig({
   schema: "./src/db/schema.ts",

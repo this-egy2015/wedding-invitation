@@ -3,20 +3,18 @@ import { randomUUID } from "node:crypto";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+import { createClient } from "@libsql/client";
 import { test } from "node:test";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { openSqlite } from "./sqlite.ts";
 
-Object.assign(process.env, {
-  SUPABASE_URL: "https://auth.example.com", SUPABASE_ANON_KEY: "test-only",
-  SITE_URL: "http://localhost:3000", R2_PUBLIC_URL: "https://assets.example.com/photos",
-});
 const { demoContent, seedDemo } = await import("../../scripts/seed-data.ts");
 const { contentSchema } = await import("../features/invitations/content.ts");
 
-test("all seed images exist; asset validation rejects lookalike origins and path prefixes", () => {
-  const { content, assets } = demoContent("https://assets.example.com/photos/demo-gaby-afdhal");
+test("all seed images exist; asset validation requires safe local media paths", () => {
+  const { content, assets } = demoContent("/berubah/demo-gaby-afdhal");
   assert.equal(assets.length, 37);
   assert.equal(new Set(assets).size, 37);
   for (const path of assets) assert(existsSync(new URL(`../../prototype/assets/${path}`, import.meta.url)), path);
@@ -36,14 +34,15 @@ test("all seed images exist; asset validation rejects lookalike origins and path
   assert.equal(contentSchema.parse(old).bride.birthOrder, "");
 });
 
-test("seed reruns preserve guest tokens, responses, moderation and unrelated invitations", (t) => {
+test("seed reruns preserve guest tokens, responses, moderation and unrelated invitations", async (t) => {
   const directory = mkdtempSync(join(tmpdir(), "wedding-seed-"));
   const client = openSqlite(join(directory, "test.sqlite"));
-  t.after(() => { client.close(); rmSync(directory, { recursive: true, force: true }); });
+  const asyncClient = createClient({ url: pathToFileURL(join(directory, "test.sqlite")).href, timeout: 5000 });
+  t.after(() => { asyncClient.close(); client.close(); rmSync(directory, { recursive: true, force: true }); });
   migrate(drizzle(client), { migrationsFolder: "./drizzle/sqlite" });
   const ownerId = randomUUID();
-  const { content } = demoContent("https://assets.example.com/photos/demo-gaby-afdhal");
-  const id = seedDemo(client, ownerId, content);
+  const { content } = demoContent("/berubah/demo-gaby-afdhal");
+  const id = await seedDemo(asyncClient, ownerId, content);
   assert.equal((client.prepare("SELECT * FROM guests").all()).length, 4);
   assert.equal((client.prepare("SELECT * FROM rsvps").all()).length, 3);
   client.prepare("UPDATE rsvps SET wish = 'Ucapan diedit', is_wish_visible = 0").run();
@@ -52,11 +51,11 @@ test("seed reruns preserve guest tokens, responses, moderation and unrelated inv
   client.prepare(`INSERT INTO invitations (id, owner_id, template_id, template_version, slug, created_at, updated_at)
     VALUES (?, ?, 'classic', 1, 'other-wedding', 1, 1)`).run(randomUUID(), randomUUID());
   const other = client.prepare("SELECT * FROM invitations WHERE slug = 'other-wedding'").get();
-  assert.equal(seedDemo(client, ownerId, { ...content, coverTitle: "Judul baru" }), id);
+  assert.equal(await seedDemo(asyncClient, ownerId, { ...content, coverTitle: "Judul baru" }), id);
   assert.deepEqual(client.prepare("SELECT * FROM guests ORDER BY id").all(), guests);
   assert.deepEqual(client.prepare("SELECT * FROM rsvps ORDER BY id").all(), responses);
   assert.deepEqual(client.prepare("SELECT * FROM invitations WHERE slug = 'other-wedding'").get(), other);
-  assert.throws(() => seedDemo(client, randomUUID(), content), /akun lain/);
+  await assert.rejects(() => seedDemo(asyncClient, randomUUID(), content), /akun lain/);
   const stored = client.prepare("SELECT published_content FROM invitations WHERE id = ?").get(id) as { published_content: string };
   assert.equal(JSON.parse(stored.published_content).coverTitle, "Judul baru");
   assert.deepEqual(client.pragma("foreign_key_check"), []);

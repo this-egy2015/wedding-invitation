@@ -52,7 +52,7 @@ export async function updateGuestAction(
   const parsed = guestSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, errors: formatIssues(parsed.error) };
 
-  const error = updateGuestDetails(db, invitation.id, guest.id, parsed.data);
+  const error = await updateGuestDetails(db, invitation.id, guest.id, parsed.data);
   if (error) return { ok: false, errors: [error] };
 
   revalidatePath(`/dashboard/invitations/${invitation.id}/guests`, "layout");

@@ -48,7 +48,7 @@ export function getPublishedInvitation(slug: string) {
         .where(and(eq(invitations.slug, slug), eq(invitations.status, "published")));
       return row?.content ? { ...row, content: row.content } : null;
     },
-    ["published-invitation-sqlite", slug],
+    ["published-invitation-libsql", slug],
     { tags: [invitationTag(slug)] },
   )();
 }

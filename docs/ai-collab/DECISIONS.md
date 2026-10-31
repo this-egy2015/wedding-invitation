@@ -1,5 +1,11 @@
 # Keputusan
 
+## 007. Aplikasi penuh di Vercel dengan SQLite remote dan media persisten (2026-10-31, codex)
+
+**Konteks**: Keputusan terakhir pemilik adalah aplikasi penuh di Vercel dengan layanan remote. Path media yang diminta tetap `/berubah/<idUndangan>`.
+**Keputusan**: Runtime memakai Drizzle/libSQL: file SQLite privat untuk development, Turso melalui TLS/token privat untuk Vercel. Transaksi write libSQL memakai BEGIN IMMEDIATE, guard ownership tetap berlaku. Supabase hosted menangani Auth dan Storage. Media konten disimpan di bucket `wedding-assets/berubah/<slug>/...`, disajikan melalui route GET/HEAD pada path aplikasi yang sama. Konten menyimpan path relatif; ornamen UI tetap ikut build. Tidak menambah endpoint upload anonim.
+**Konsekuensi**: Vercel menolak fallback ke SQLite lokal bila token/URL remote belum tersedia. Migration/seed mendukung env produksi terpisah; backup lokal tidak dianggap backup Turso. Foto dan DB tidak bergantung filesystem deployment. Route media menolak traversal/file executable, meneruskan media dari host Supabase yang dikonfigurasi tanpa mengirim secret key. Akun/layanan hosted perlu dikonfigurasi sebelum deploy.
+
 ## 006. Seed prototype lengkap melalui asset server (2026-10-31, codex)
 
 **Konteks**: Pemilik meminta push ke repo GitHub, seed semua teks/foto, dan mencoba Vercel.

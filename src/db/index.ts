@@ -1,13 +1,13 @@
 import "server-only";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import { drizzle } from "drizzle-orm/libsql";
 import { env } from "@/env";
 import * as schema from "./schema";
-import { openSqlite } from "./sqlite";
+import { connectDatabase } from "./client";
 
 // Reuse the connection across dev hot reloads.
-const globalForDb = globalThis as unknown as { sqlite?: ReturnType<typeof openSqlite> };
+const globalForDb = globalThis as unknown as { libsql?: Awaited<ReturnType<typeof connectDatabase>> };
 
-const client = globalForDb.sqlite ?? openSqlite(env.SQLITE_PATH);
-if (process.env.NODE_ENV !== "production") globalForDb.sqlite = client;
+const client = globalForDb.libsql ?? await connectDatabase({ ...env, VERCEL: process.env.VERCEL });
+if (process.env.NODE_ENV !== "production") globalForDb.libsql = client;
 
 export const db = drizzle(client, { schema });

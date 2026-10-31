@@ -25,7 +25,7 @@ export async function submitRsvpAction(_prev: RsvpFormState, formData: FormData)
   const parsed = rsvpSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Data RSVP tidak valid" };
 
-  const result = saveRsvp(db, parsed.data);
+  const result = await saveRsvp(db, parsed.data);
   if (!result.ok) return result;
   revalidatePath(invitationPath(result.slug));
   return { ok: true, message: "Terima kasih, konfirmasi kamu sudah tersimpan" };

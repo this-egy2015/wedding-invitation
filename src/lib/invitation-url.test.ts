@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { invitationPath, isPublicInvitationSlug } from "./invitation-url.ts";
 
 test("public slugs cannot shadow application routes or asset paths", () => {
-  for (const value of ["home", "login", "dashboard", "auth", "invite", "api", "assets", "templates", "_next", "favicon.ico", "a/b", "../login", "A-B", "ab", "a".repeat(61)]) {
+  for (const value of ["home", "login", "dashboard", "auth", "invite", "api", "assets", "templates", "berubah", "_next", "favicon.ico", "a/b", "../login", "A-B", "ab", "a".repeat(61)]) {
     assert.equal(isPublicInvitationSlug(value), false, value);
   }
   for (const value of ["demo-fajar-nadya", "abc", "wedding-2026", "a".repeat(60)]) {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { env } from "@/env";
 import { Cormorant_Garamond, Inter, Montserrat, Poppins, Yellowtail } from "next/font/google";
 import "./globals.css";
 
@@ -15,6 +16,7 @@ const montserrat = Montserrat({ subsets: ["latin"], weight: "400", variable: "--
 
 export const metadata: Metadata = {
   title: "Wedding Invitation",
+  metadataBase: new URL(env.SITE_URL),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -4,32 +4,38 @@ import { existsSync, readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { backupSqlite, openSqlite } from "../src/db/sqlite.ts";
+import { connectDatabase } from "../src/db/client.ts";
 
-if (existsSync(".env.local")) process.loadEnvFile(".env.local");
+const envFile = process.env.APP_ENV_FILE ?? ".env.local";
+if (process.env.APP_ENV_FILE || existsSync(envFile)) process.loadEnvFile(envFile);
 const { env } = await import("../src/env.ts");
 const { demoContent, demoSlug, seedDemo } = await import("./seed-data.ts");
-const client = openSqlite(env.SQLITE_PATH);
+const client = await connectDatabase({ ...env, VERCEL: process.env.VERCEL });
 try {
-  const existing = client.prepare("SELECT owner_id FROM invitations WHERE slug = ?").get(demoSlug) as { owner_id: string } | undefined;
+  const existing = (await client.execute({ sql: "SELECT owner_id FROM invitations WHERE slug = ?", args: [demoSlug] })).rows[0];
   const ownerId = z.uuid().parse(process.env.SEED_OWNER_ID || existing?.owner_id);
-  let serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  let serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY;
   if (!serviceKey && ["127.0.0.1", "localhost"].includes(new URL(env.SUPABASE_URL).hostname)) {
     const status = JSON.parse(execFileSync("./node_modules/.bin/supabase", ["status", "-o", "json"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }));
     assert.equal(new URL(status.API_URL).origin, new URL(env.SUPABASE_URL).origin, "Supabase lokal tidak cocok.");
     serviceKey = status.SERVICE_ROLE_KEY;
   }
-  assert(serviceKey, "Isi SUPABASE_SERVICE_ROLE_KEY di environment lokal untuk seed Auth/storage.");
+  assert(serviceKey, "Isi SUPABASE_SERVICE_ROLE_KEY di environment privat untuk verifikasi owner Auth.");
   const supabase = createClient(env.SUPABASE_URL, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data: owner, error: ownerError } = await supabase.auth.admin.getUserById(ownerId);
   assert(!ownerError && owner.user, "SEED_OWNER_ID harus menunjuk akun Supabase Auth yang sudah ada.");
   assert(!existing || existing.owner_id === ownerId, "Demo dimiliki akun lain.");
 
-  const bucket = "wedding-assets";
-  const assetBase = `${env.SUPABASE_URL.replace(/\/$/, "")}/storage/v1/object/public/${bucket}/${demoSlug}`;
+  const assetBase = `/berubah/${demoSlug}`;
   const { content, assets } = demoContent(assetBase);
-  // Validate every source before writing to storage or the database.
+  // Validate every source before writing assets or the database.
   const files = assets.map((path) => ({ path, bytes: readFileSync(new URL(`../prototype/assets/${path}`, import.meta.url)) }));
-  console.log("Backup sebelum seed:", await backupSqlite(client));
+  if (!env.TURSO_DATABASE_URL) {
+    const local = openSqlite(env.SQLITE_PATH);
+    try { console.log("Backup sebelum seed:", await backupSqlite(local)); }
+    finally { local.close(); }
+  }
+  const bucket = "wedding-assets";
   const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
   if (bucketError) throw bucketError;
   const currentBucket = buckets.find((item) => item.name === bucket);
@@ -39,16 +45,17 @@ try {
     if (error) throw error;
   }
   for (const { path, bytes } of files) {
-    const { error } = await supabase.storage.from(bucket).upload(`${demoSlug}/${path}`, bytes, {
+    const objectPath = `berubah/${demoSlug}/${path}`;
+    const { error } = await supabase.storage.from(bucket).upload(objectPath, bytes, {
       upsert: true, contentType: path.endsWith(".jpg") ? "image/jpeg" : "image/png",
     });
     if (error) throw error;
-    const response = await fetch(`${assetBase}/${path}`, { method: "HEAD", signal: AbortSignal.timeout(15000) });
-    assert(response.ok && response.headers.get("content-type")?.startsWith("image/"), `Aset belum tersedia: ${path}`);
+    const response = await fetch(`${env.SUPABASE_URL.replace(/\/$/, "")}/storage/v1/object/public/${bucket}/${objectPath}`, { method: "HEAD", signal: AbortSignal.timeout(15000) });
+    assert(response.ok, `Gambar belum tersedia: ${path}`);
   }
-  seedDemo(client, ownerId, content);
-  assert.equal(client.pragma("integrity_check", { simple: true }), "ok");
-  assert.deepEqual(client.pragma("foreign_key_check"), []);
+  await seedDemo(client, ownerId, content);
+  assert.equal((await client.execute("PRAGMA integrity_check")).rows[0][0], "ok");
+  assert.equal((await client.execute("PRAGMA foreign_key_check")).rows.length, 0);
   console.log(`Seed selesai: ${env.SITE_URL.replace(/\/$/, "")}/${demoSlug}; ${assets.length} gambar, 30 galeri, 4 tamu contoh (respons lama dipertahankan).`);
   console.log("Terbitkan ulang melalui dashboard pemilik untuk menyegarkan halaman yang sudah di-cache. Link personal tersedia di dashboard pemilik.");
 } finally { client.close(); }

@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
-import type Database from "better-sqlite3";
+import type { Client } from "@libsql/client";
 import { contentSchema, type InvitationContent } from "../src/features/invitations/content.ts";
 
 export const demoSlug = "demo-gaby-afdhal";
@@ -24,18 +24,19 @@ export function demoContent(assetBase: string) {
 }
 
 /** Updates only the demo content; existing guest tokens, responses and moderation survive reruns. */
-export function seedDemo(client: Database.Database, ownerId: string, content: InvitationContent) {
+export async function seedDemo(client: Client, ownerId: string, content: InvitationContent) {
   contentSchema.parse(content);
-  return client.transaction(() => {
-    const existing = client.prepare("SELECT id, owner_id FROM invitations WHERE slug = ?").get(demoSlug) as { id: string; owner_id: string } | undefined;
+  const tx = await client.transaction("write");
+  try {
+    const existing = (await tx.execute({ sql: "SELECT id, owner_id FROM invitations WHERE slug = ?", args: [demoSlug] })).rows[0];
     if (existing && existing.owner_id !== ownerId) throw new Error("Demo sudah dimiliki akun lain; seed dibatalkan.");
-    const invitationId = existing?.id ?? randomUUID();
+    const invitationId = existing ? String(existing.id) : randomUUID();
     const now = Date.now();
     const json = JSON.stringify(content);
-    client.prepare(`INSERT INTO invitations (id, owner_id, template_id, template_version, slug, status, draft_content, published_content, published_at, created_at, updated_at)
+    await tx.execute({ sql: `INSERT INTO invitations (id, owner_id, template_id, template_version, slug, status, draft_content, published_content, published_at, created_at, updated_at)
       VALUES (?, ?, 'classic', 1, ?, 'published', ?, ?, ?, ?, ?)
       ON CONFLICT(slug) DO UPDATE SET draft_content = excluded.draft_content, published_content = excluded.published_content,
-        status = 'published', published_at = excluded.published_at, updated_at = excluded.updated_at`).run(invitationId, ownerId, demoSlug, json, json, now, now, now);
+        status = 'published', published_at = excluded.published_at, updated_at = excluded.updated_at`, args: [invitationId, ownerId, demoSlug, json, json, now, now, now] });
 
     const samples = [
       { name: "Tamu Contoh — Belum Konfirmasi", status: null, count: 0, wish: null },
@@ -45,16 +46,20 @@ export function seedDemo(client: Database.Database, ownerId: string, content: In
     ];
     for (const [index, sample] of samples.entries()) {
       const guestId = `387f920e-0754-4a87-b084-00000000000${index + 1}`;
-      const guest = client.prepare("SELECT invitation_id FROM guests WHERE id = ?").get(guestId) as { invitation_id: string } | undefined;
+      const guest = (await tx.execute({ sql: "SELECT invitation_id FROM guests WHERE id = ?", args: [guestId] })).rows[0];
       if (guest && guest.invitation_id !== invitationId) throw new Error("ID tamu seed bertabrakan dengan undangan lain.");
       if (guest) continue;
-      client.prepare(`INSERT INTO guests (id, invitation_id, name, allowed_guest_count, share_token, created_at, updated_at)
-        VALUES (?, ?, ?, 2, ?, ?, ?)`).run(guestId, invitationId, sample.name, randomBytes(16).toString("base64url"), now, now);
+      await tx.execute({ sql: `INSERT INTO guests (id, invitation_id, name, allowed_guest_count, share_token, created_at, updated_at)
+        VALUES (?, ?, ?, 2, ?, ?, ?)`, args: [guestId, invitationId, sample.name, randomBytes(16).toString("base64url"), now, now] });
       if (sample.status) {
-        client.prepare(`INSERT INTO rsvps (id, guest_id, status, attendance_count, wish, is_wish_visible, responded_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, 1, ?, ?)`).run(randomUUID(), guestId, sample.status, sample.count, sample.wish, now, now);
+        await tx.execute({ sql: `INSERT INTO rsvps (id, guest_id, status, attendance_count, wish, is_wish_visible, responded_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, 1, ?, ?)`, args: [randomUUID(), guestId, sample.status, sample.count, sample.wish, now, now] });
       }
     }
+    await tx.commit();
     return invitationId;
-  }).immediate();
+  } catch (error) {
+    await tx.rollback();
+    throw error;
+  } finally { tx.close(); }
 }
