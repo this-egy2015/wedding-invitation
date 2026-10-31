@@ -103,6 +103,12 @@ export function ContentForm({ initial, timezones, action }: Props) {
           defaultValue={initial?.coverTitle}
           hint='Jika kosong, memakai "Maimbau Baralek".'
         />
+        <Field
+          name="recipientName"
+          label="Nama penerima di cover"
+          defaultValue={initial?.recipientName}
+          hint='Tampil sebagai "Kepada Yth. [nama]". Kosongkan untuk "Tamu Undangan". Link personal tamu tetap menimpa nama ini.'
+        />
         <Field name="musicUrl" label="Path musik (opsional)" defaultValue={initial?.musicUrl} />
       </Section>
 

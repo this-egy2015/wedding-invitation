@@ -41,6 +41,7 @@ export const contentSchema = z.object({
   // Defaults keep drafts saved before these fields existed valid.
   coverPortraitUrl: optionalAsset.default(""),
   coverTitle: optional(40).default(""),
+  recipientName: optional(100).default(""),
   musicUrl: optionalAsset,
   groom: person,
   bride: person,

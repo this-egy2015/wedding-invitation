@@ -27,7 +27,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ invita
         <template.Component
           slug={invitation.slug}
           content={invitation.draftContent}
-          guest={{ name: "Nama Tamu", partnerName: null, allowedGuestCount: 2, rsvpStatus: null, attendanceCount: null, wish: null }}
+          guest={null}
           token={null}
           preview
         />

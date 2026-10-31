@@ -69,7 +69,7 @@ function Location({ event }: { event: Content["akad"] }) {
 
 export function ClassicTemplate({ slug, content, guest, token, preview }: TemplateProps) {
   const coupleName = `${content.bride.nickname} & ${content.groom.nickname}`;
-  const guestName = guest ? [guest.name, guest.partnerName].filter(Boolean).join(" & ") : null;
+  const guestName = guest ? [guest.name, guest.partnerName].filter(Boolean).join(" & ") : (content.recipientName || null);
   return (
     <CoverGate
       coupleName={coupleName}

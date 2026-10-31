@@ -8,7 +8,9 @@
 
 ## Handoff terakhir
 
-- **2026-10-31, codex**: `main` (belum commit): daftar ucapan RSVP client-side infinite scroll — maks 5 kartu terlihat, auto-load via `IntersectionObserver`, dan refresh langsung setelah submit. Typecheck, 24 tes, build lulus; smoke browser belum dijalankan. Lihat `notes/2026-10-31-codex-wish-infinite-scroll.md`.
+- **2026-10-31, codex**: `main`: daftar ucapan RSVP client-side infinite scroll — maks 5 kartu terlihat, auto-load via `IntersectionObserver`, dan refresh langsung setelah submit. Typecheck, 24 tes, build lulus; smoke browser belum dijalankan. Lihat `notes/2026-10-31-codex-wish-infinite-scroll.md`.
+
+- **2026-10-31, codex**: `main`: field `recipientName` di konten + form editor + fallback cover; preview menampilkan nama penerima asli. Typecheck, 24 tes, build lulus. Lihat `notes/2026-10-31-codex-recipient-name.md`.
 
 - **2026-10-31, codex**: `codex/production-rsvp`: undangan live di https://wedding-invitation-lovat-theta.vercel.app/gaby-afdhal; link lama redirect/query tetap. Data tamu/ucapan/rekening contoh dibersihkan secara selektif setelah snapshot privat. Form umum bisa membuat/memperbarui RSVP lewat cookie HttpOnly; link personal tetap aktif. Ucapan langsung dibaca dari DB dan mengikuti moderasi. Seed tidak membuat contoh atau menimpa existing. Typecheck, 24 tes, build dan smoke hosted publik lulus termasuk isolasi token dari client props. Lihat `notes/2026-10-31-codex-production-rsvp.md`.
 
