@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { backupSqlite, openSqlite } from "../src/db/sqlite.ts";
 import { connectDatabase } from "../src/db/client.ts";
+import { findOrCreateSeedOwner } from "./seed-owner.ts";
 
 const envFile = process.env.APP_ENV_FILE ?? ".env.local";
 if (process.env.APP_ENV_FILE || existsSync(envFile)) process.loadEnvFile(envFile);
@@ -13,7 +14,7 @@ const { demoContent, demoSlug, seedDemo } = await import("./seed-data.ts");
 const client = await connectDatabase({ ...env, VERCEL: process.env.VERCEL });
 try {
   const existing = (await client.execute({ sql: "SELECT owner_id FROM invitations WHERE slug = ?", args: [demoSlug] })).rows[0];
-  const ownerId = z.uuid().parse(process.env.SEED_OWNER_ID || existing?.owner_id);
+  let ownerId = z.uuid().optional().parse(process.env.SEED_OWNER_ID || existing?.owner_id);
   let serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY;
   if (!serviceKey && ["127.0.0.1", "localhost"].includes(new URL(env.SUPABASE_URL).hostname)) {
     const status = JSON.parse(execFileSync("./node_modules/.bin/supabase", ["status", "-o", "json"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }));
@@ -22,6 +23,10 @@ try {
   }
   assert(serviceKey, "Isi SUPABASE_SERVICE_ROLE_KEY di environment privat untuk verifikasi owner Auth.");
   const supabase = createClient(env.SUPABASE_URL, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  if (!ownerId) {
+    assert(process.env.SEED_OWNER_EMAIL, "DB baru memerlukan SEED_OWNER_ID atau SEED_OWNER_EMAIL.");
+    ownerId = await findOrCreateSeedOwner(supabase.auth.admin, process.env.SEED_OWNER_EMAIL);
+  }
   const { data: owner, error: ownerError } = await supabase.auth.admin.getUserById(ownerId);
   assert(!ownerError && owner.user, "SEED_OWNER_ID harus menunjuk akun Supabase Auth yang sudah ada.");
   assert(!existing || existing.owner_id === ownerId, "Demo dimiliki akun lain.");

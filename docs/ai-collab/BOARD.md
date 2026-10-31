@@ -4,9 +4,11 @@
 
 | Agen | Branch | Tugas | File yang disentuh |
 |---|---|---|---|
-| — | — | Perbaikan SITE_URL selesai; deployment menunggu environment Turso | — |
+| — | — | Seed dan deploy hosted selesai; pengaturan callback/login Supabase menunggu pemilik | — |
 
 ## Handoff terakhir
+
+- **2026-10-31, codex**: `codex/hosted-seed`: Turso Starter Tokyo dibuat dan dihubungkan ke Production; migrasi dan seed hosted selesai dengan email owner yang diberikan pemilik. Supabase menyimpan 37 gambar, Turso berisi demo published, 4 tamu dan 3 ucapan. Live: https://wedding-invitation-lovat-theta.vercel.app/demo-gaby-afdhal. Typecheck, 21 tes, build lokal/remote, media/optimizer, browser mobile/carousel dan penyimpanan RSVP hosted lulus; tamu tes dibersihkan. Cache 404 sebelum seed dihapus melalui tag CLI. Pending: pemilik menyimpan Site URL/Redirect URL Supabase; login/email hosted belum diuji. Lihat `notes/2026-10-31-codex-hosted-seed.md`.
 
 - **2026-10-31, codex**: `codex/vercel-site-url` memperbaiki ZodError SITE_URL pada build Vercel. URL eksplisit tetap utama; fallback domain sistem Vercel membedakan Production dan Preview. Typecheck, 19 tes, dan build lulus. CLI Vercel kini login dan repo terhubung ke proyek `acme-d-luh-vi/wedding-invitation`; integrasi Supabase Production ada, tetapi TURSO_DATABASE_URL/TURSO_AUTH_TOKEN belum terdaftar. Lihat `notes/2026-10-31-codex-vercel-site-url.md`.
 
@@ -38,7 +40,7 @@
 ## Pertanyaan terbuka untuk pemilik repo
 
 - GitHub sudah publik dan deploy key SSH berizin tulis sudah ditambahkan; push berhasil.
-- Pilihan akhir: aplikasi penuh Vercel, database/storage remote. Pemilik sedang provisioning Supabase Free Singapore melalui Vercel Marketplace. Masih perlu Turso, owner Auth hosted, SITE_URL/callback, dan login CLI Vercel.
+- Pilihan akhir: aplikasi penuh Vercel, database/storage remote. Supabase hosted dan Turso Starter (`wedding-invitation-db`, Tokyo) sudah terhubung ke Production; demo telah di-seed dan deployment Ready. Pemilik sedang mengatur Site URL/Redirect URL Supabase dengan panduan yang diberikan; login email belum diverifikasi. Variabel Supabase bertipe Secret hanya tersedia saat build/runtime remote, hasil env pull berisi placeholder.
 
 - Upload media dari dashboard belum dibuat; seed/admin memakai Supabase Storage pada namespace `berubah/<slug>`.
 - Rate limiting: cukup Vercel WAF, atau perlu di level aplikasi?
