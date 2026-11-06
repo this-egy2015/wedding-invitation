@@ -150,10 +150,12 @@ export function ContentForm({ initial, timezones, action }: Props) {
           id="gifts"
           name="gifts"
           rows={3}
+          aria-describedby="gifts-hint"
           placeholder="BCA | 1234567890 | Gaby"
           defaultValue={initial?.gifts.map((g) => `${g.bank} | ${g.accountNumber} | ${g.accountName}`).join("\n")}
           className="input font-mono"
         />
+        <p id="gifts-hint" className="mt-2 text-sm text-neutral-500">Maksimal 5 rekening. Semua rekening tampil dalam satu kartu Tanda Kasih, masing-masing dengan tombol salin.</p>
       </Section>
 
       <FormErrors errors={state.errors} />

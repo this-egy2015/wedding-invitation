@@ -139,16 +139,20 @@ export function ClassicTemplate({ slug, content, guest, token, preview }: Templa
 
         {content.gifts.length > 0 && (
           <section className={styles.gifts} data-section="gift">
-            {content.gifts.map((gift) => (
-              <div className={styles.giftCard} key={`${gift.bank}-${gift.accountNumber}`}>
-                <h2>Tanda Kasih</h2>
-                <p>Doa dan kehadiran Anda merupakan hadiah terindah bagi kami. Bagi yang ingin berbagi tanda kasih, kami menyediakan informasi rekening di bawah ini.</p>
-                <p className={styles.bankName}>{gift.bank}</p>
-                <strong className={styles.accountNumber}>{gift.accountNumber}</strong>
-                <p className={styles.accountName}>{gift.accountName}</p>
-                <CopyButton value={gift.accountNumber} label="Salin Nomor Rekening" className={styles.button} />
+            <div className={styles.giftCard}>
+              <h2>Tanda Kasih</h2>
+              <p>Doa dan kehadiran Anda merupakan hadiah terindah bagi kami. Bagi yang ingin berbagi tanda kasih, kami menyediakan informasi rekening di bawah ini.</p>
+              <div className={styles.giftAccounts}>
+                {content.gifts.map((gift, index) => (
+                  <div className={styles.giftAccount} key={`${gift.bank}-${gift.accountNumber}-${index}`} role="group" aria-label={`Rekening ${gift.bank} atas nama ${gift.accountName}`}>
+                    <p className={styles.bankName}>{gift.bank}</p>
+                    <strong className={styles.accountNumber}>{gift.accountNumber}</strong>
+                    <p className={styles.accountName}>{gift.accountName}</p>
+                    <CopyButton value={gift.accountNumber} label="Salin Nomor Rekening" className={styles.button} />
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </section>
         )}
       </div>

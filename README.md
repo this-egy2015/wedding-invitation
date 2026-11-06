@@ -83,6 +83,7 @@ src/
 - **Slug immutable** setelah dibuat. Pengecualian satu kali: undangan awal dipromosikan ke `/gaby-afdhal`; `/demo-gaby-afdhal` redirect permanen sambil mempertahankan query. Media existing tetap pada namespace lama agar link gambar tidak putus.
 - **Template di kode, bukan tabel**: `invitations.template_id` + `template_version` merujuk ke `src/templates/index.ts`. Menambah template tidak mengubah skema DB.
 - **UI dan konten terpisah**: template `classic` mengikuti Frame 1/2 prototype, dengan CSS Module dan komponen React. Ornamen berada di `src/templates/classic/assets/` ([inventaris](src/templates/classic/assets/README.md)); foto dan informasi pasangan berasal dari konten slug yang dibuka. Prototype HTML/JS bukan runtime aplikasi. Cover meluncur vertikal 1,5 detik lalu dilepas; bagian undangan memakai scroll biasa.
+- **Tanda Kasih**: semua rekening berada dalam satu kartu dengan satu judul/pengantar; setiap rekening memiliki tombol salin sendiri. Nomor memakai font Inter dan angka tabular agar mudah dibaca.
 - **Nama penerima cover**: field konten opsional `recipientName` menampilkan nama penerima di cover link umum sebagai "Kepada Yth. [nama]"; jika kosong, "Tamu Undangan". Link personal `?to=` tetap menimpa nama ini.
 - **Status `pending`** tidak disimpan; tamu tanpa baris `rsvps` dianggap pending.
 - **Waktu acara** disimpan sebagai wall-clock lokal + zona IANA (`timezone`). Countdown dihitung di server ke epoch absolut.

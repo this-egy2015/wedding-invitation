@@ -179,12 +179,14 @@
 .wishes article p { margin-top: 6px; font-size: 15px; font-weight: 500; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .wishSentinel { height: 1px; }
 .emptyWishes { color: var(--blush); text-align: center; }
-.gifts { display: grid; gap: 32px; padding: 0 0 150px; }
+.gifts { padding: 0 0 150px; }
 .giftCard { width: min(304px, calc(100% - 64px)); min-height: 279px; margin: 0 auto; padding: 20px 22px; border-radius: 29px; background: white; box-shadow: var(--shadow); text-align: center; }
 .giftCard > p { margin-top: 12px; font-size: 14px; font-weight: 500; }
+.giftAccounts { margin-top: 24px; }
+.giftAccount + .giftAccount { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgb(145 75 41 / 20%); }
 .giftCard .bankName { font-size: 20px; }
-.accountNumber { display: block; margin-top: 8px; font-size: 20px; }
-.giftCard .accountName { margin-top: 0; font-size: 13px; }
+.accountNumber { display: block; margin-top: 8px; font: 600 20px/1.5 var(--font-inter), sans-serif; font-variant-numeric: lining-nums tabular-nums; letter-spacing: .025em; overflow-wrap: anywhere; }
+.giftCard .accountName { margin-top: 4px; font-size: 13px; }
 .giftCard .button { margin-top: 16px; font-size: 13px !important; }
 
 @media (max-width: 359px) {

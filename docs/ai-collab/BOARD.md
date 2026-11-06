@@ -4,9 +4,11 @@
 
 | Agen | Branch | Tugas | File yang disentuh |
 |---|---|---|---|
-| — | — | Undangan produksi dan RSVP publik selesai; callback/login Supabase masih menunggu pemilik | — |
+| — | — | Kartu rekening selesai; deployment diperiksa pada sesi ini | — |
 
 ## Handoff terakhir
+
+- **2026-11-06, codex**: `codex/gift-single-card`: Tanda Kasih menjadi satu kartu berisi beberapa rekening dan tombol salin per rekening. Angka memakai Inter/tabular numerals; editor diberi petunjuk. Typecheck, 24 tes, build, smoke 0/1/2/5 rekening pada 320/390/1280px serta clipboard lulus. Lihat `notes/2026-11-06-codex-gift-single-card.md`.
 
 - **2026-10-31, codex**: `main`: daftar ucapan RSVP client-side infinite scroll — maks 5 kartu terlihat, auto-load via `IntersectionObserver`, dan refresh langsung setelah submit. Typecheck, 24 tes, build lulus; smoke browser belum dijalankan. Lihat `notes/2026-10-31-codex-wish-infinite-scroll.md`.
 

@@ -1,5 +1,11 @@
 # Keputusan
 
+## 012. Satu kartu Tanda Kasih untuk beberapa rekening (2026-11-06, codex)
+
+**Konteks**: Pemilik meminta dua rekening tidak mengulang seluruh kartu dan font nomor rekening diperjelas.
+**Keputusan**: Judul dan pengantar Tanda Kasih tampil sekali; setiap rekening menjadi baris di dalam satu kartu, dipisahkan garis dan memiliki tombol salin sendiri. Angka memakai Inter dengan tabular numerals.
+**Konsekuensi**: Struktur `gifts` dan editor multi-rekening tetap kompatibel; tanpa migrasi atau perubahan nomor rekening. Kartu disembunyikan bila daftar kosong.
+
 ## 011. Nama penerima pada cover undangan publik (2026-10-31, codex)
 
 **Konteks**: Cover publik hanya menampilkan nama pasangan dan "Tamu Undangan"; pemilik ingin menaruh nama tamu/penerima di undangan.
