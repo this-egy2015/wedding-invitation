@@ -51,6 +51,8 @@ Halaman yang sudah di-cache perlu diterbitkan ulang lewat dashboard pemilik sete
 
 ### Deployment dan backup
 
+Target custom domain: **invitation.riburupa.com**. Domain sudah didaftarkan di Vercel; aktivasi menunggu DNS Cloudflare, HTTPS dan konfigurasi callback Supabase. Lihat [panduan domain RibuRupa](docs/deploy-riburupa.md) untuk record DNS, urutan aktivasi, pengujian dan rollback. Origin aktif tetap diatur melalui `SITE_URL`.
+
 GitHub: `https://github.com/this-egy2015/wedding-invitation`; push SSH ke `main` sudah berhasil. Untuk aplikasi penuh di Vercel, isi `TURSO_DATABASE_URL` dan `TURSO_AUTH_TOKEN` serta Supabase hosted dan `SITE_URL`. Runtime menolak fallback file lokal di Vercel. Lihat [alur remote](readme-howto.md#aplikasi-penuh-di-vercel). [Vercel tidak menyediakan persistensi file SQLite lokal](https://vercel.com/kb/guide/is-sqlite-supported-in-vercel). `.vercelignore` mengecualikan environment privat, DB/backup, dan konfigurasi editor saat upload source.
 
 `make seed-remote` membaca `.env.production.local`, menjalankan migration SQLite yang sama ke Turso, lalu seed dengan owner Auth hosted yang valid dan upload foto ke Storage hosted. Tidak mengimpor data/tamu lokal otomatis ke produksi. Backup/export Turso perlu disiapkan lewat layanan Turso sebelum mengubah data produksi; `db:backup` sengaja menolak target remote. Storage juga perlu dicadangkan terpisah. Integrasi Vercel Supabase dapat memakai `SUPABASE_PUBLISHABLE_KEY` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; keduanya diterima sebagai alias key publik Auth.

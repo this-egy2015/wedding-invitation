@@ -2,6 +2,8 @@
 
 Jalankan seluruh perintah dari root repo. Aplikasi memakai SQLite/libSQL untuk undangan/tamu/RSVP, Supabase Auth untuk login, dan Supabase Storage untuk gambar. Lokal memakai file DB + Supabase Docker; Vercel memakai Turso + Supabase hosted.
 
+Untuk target **invitation.riburupa.com**, ikuti [panduan subdomain RibuRupa](docs/deploy-riburupa.md). SITE_URL menerima origin HTTP(S) tanpa path/query/fragment; trailing slash dinormalisasi. Aktifkan origin baru setelah DNS, HTTPS dan callback siap.
+
 ### Admin dan petugas tamu
 
 Isi `ADMIN_EMAIL` di `.env.local`/environment Production Vercel dengan email admin yang ditetapkan pemilik, tanpa awalan `NEXT_PUBLIC_`. Jalankan migrasi terbaru (`npm run db:migrate`) sebelum memakai versi yang mendukung petugas. Alamat admin tidak disimpan di repo publik.
@@ -209,7 +211,7 @@ npx vercel cache dangerously-delete --tag invitation:gaby-afdhal --yes
 
 Perintah ini menghapus cache, bukan data undangan di Turso.
 
-6. Di environment Vercel **Production**, isi `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `SITE_URL`, serta URL/key publik Supabase (boleh alias integrasi). Secret/admin key hanya diperlukan oleh proses seed, bukan untuk halaman undangan atau login.
+6. Di environment Vercel **Production**, isi `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `SITE_URL`, `ADMIN_EMAIL`, serta URL/key publik Supabase (boleh alias integrasi). Secret/admin key diperlukan untuk seed dan unggah lagu dari dashboard; simpan sebagai environment privat.
 
    `SITE_URL` dapat dikosongkan dengan menghapus variabelnya pada Vercel: Production memakai `https://${VERCEL_PROJECT_PRODUCTION_URL}` (fallback `VERCEL_URL`), sedangkan Preview memakai `https://${VERCEL_URL}`. Nilai eksplisit tetap diutamakan. Pastikan akses System Environment Variables aktif pada pengaturan Vercel. Untuk seed dari mesin lokal, `.env.production.local` tetap perlu SITE_URL eksplisit karena domain sistem Vercel tidak otomatis tersedia. Jika URL callback harus stabil/custom, isi SITE_URL dengan domain tersebut.
 7. Pada Supabase Auth, set **Site URL** ke domain produksi dan tambahkan `https://<domain-aplikasi>.vercel.app/auth/callback` ke **Redirect URLs**. Delivery email produksi memakai konfigurasi Supabase hosted; inbox Docker port 54324 hanya untuk lokal. [SMTP bawaan Supabase hanya mengirim ke email anggota tim proyek](https://supabase.com/docs/guides/auth/auth-smtp); untuk alamat lain, konfigurasi SMTP sendiri.

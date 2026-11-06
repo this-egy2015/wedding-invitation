@@ -1,5 +1,11 @@
 # Keputusan
 
+## 015. Subdomain invitation.riburupa.com (2026-11-06, codex)
+
+**Konteks**: Pemilik meminta repo disiapkan sebagai subdomain RibuRupa dan memilih `invitation.riburupa.com`.
+**Keputusan**: Aplikasi tetap pada proyek Vercel wedding-invitation, dengan SITE_URL sebagai origin tunggal untuk link/metadata/callback. SITE_URL dinormalisasi tanpa trailing slash, hanya HTTP(S), tanpa kredensial/path/query/fragment. DNS subdomain ditambahkan melalui Cloudflare sesuai CNAME proyek Vercel. URL produksi lama dipertahankan eksplisit selama persiapan; aktivasi origin baru mengikuti kesiapan DNS, TLS dan allowlist callback Supabase.
+**Konsekuensi**: Tidak membutuhkan basePath, perpindahan DB/Storage, perubahan slug, atau cookie bersama domain induk. Route root tetap 404. Login pada domain baru memerlukan sesi baru. SMTP tetap konfigurasi terpisah. Panduan aktivasi dan rollback ada di docs/deploy-riburupa.md.
+
 ## 014. Admin tunggal dan petugas tamu per undangan (2026-11-06, codex)
 
 **Konteks**: Pemilik menetapkan satu email admin yang boleh menambahkan email petugas. Petugas langsung mengelola tamu setelah login, sedangkan link undangan tetap publik.

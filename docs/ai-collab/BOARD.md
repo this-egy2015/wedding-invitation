@@ -4,9 +4,11 @@
 
 | Agen | Branch | Tugas | File yang disentuh |
 |---|---|---|---|
-| — | — | Tombol hapus tabel tamu selesai; push/deploy diperiksa pada sesi ini | — |
+| — | — | Persiapan subdomain selesai; aktivasi menunggu DNS/HTTPS dan callback Supabase | — |
 
 ## Handoff terakhir
+
+- **2026-11-06, codex**: `codex/riburupa-subdomain`: target pilihan pemilik `invitation.riburupa.com` sudah ditambahkan ke proyek Vercel. DNS Cloudflare masih kosong; CNAME yang diminta `invitation` → `63d20240d6610afa.vercel-dns-017.com`, DNS only. SITE_URL Production dipatok ke domain Vercel lama selama persiapan. Validasi origin/trailing slash diperketat, panduan aktivasi/rollback di `docs/deploy-riburupa.md`. Typecheck, 28 tes, build lokal/custom-origin, serta smoke metadata/callback/404 lulus. DNS/HTTPS dan login hosted belum aktif/teruji pada subdomain baru; lihat `notes/2026-11-06-codex-riburupa-subdomain.md`.
 
 - **2026-11-06, codex**: `codex/guest-table-delete`: tombol Hapus langsung pada setiap baris tabel tamu, memakai ConfirmButton/deleteGuestAction existing. Konfirmasi menyebut nama dan penghapusan RSVP; action menginvalidasi halaman tamu sebelum redirect. Typecheck, 27 tes, build dan smoke Chrome mobile (batal, hapus sebagai petugas/admin, cascade RSVP, tabel/empty state diperbarui, undangan lain utuh) lulus. Lihat `notes/2026-11-06-codex-guest-table-delete.md`.
 

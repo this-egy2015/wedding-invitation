@@ -9,7 +9,14 @@ export const env = z
     SQLITE_PATH: z.string().min(1).default("./data/wedding.sqlite"),
     SUPABASE_URL: z.url(),
     SUPABASE_ANON_KEY: z.string().min(1),
-    SITE_URL: z.url(),
+    SITE_URL: z.url({ protocol: /^https?$/ }).transform((value, context) => {
+      const url = new URL(value);
+      if (url.username || url.password || url.pathname !== "/" || url.search || url.hash) {
+        context.addIssue({ code: "custom", message: "SITE_URL harus berupa origin tanpa kredensial, path, query, atau fragment." });
+        return z.NEVER;
+      }
+      return url.origin;
+    }),
     TURSO_DATABASE_URL: z.url().optional(),
     TURSO_AUTH_TOKEN: z.string().min(1).optional(),
   })
