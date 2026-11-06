@@ -4,9 +4,11 @@
 
 | Agen | Branch | Tugas | File yang disentuh |
 |---|---|---|---|
-| — | — | Akses petugas selesai; push/deploy diperiksa pada sesi ini | — |
+| — | — | Tombol hapus tabel tamu selesai; push/deploy diperiksa pada sesi ini | — |
 
 ## Handoff terakhir
+
+- **2026-11-06, codex**: `codex/guest-table-delete`: tombol Hapus langsung pada setiap baris tabel tamu, memakai ConfirmButton/deleteGuestAction existing. Konfirmasi menyebut nama dan penghapusan RSVP; action menginvalidasi halaman tamu sebelum redirect. Typecheck, 27 tes, build dan smoke Chrome mobile (batal, hapus sebagai petugas/admin, cascade RSVP, tabel/empty state diperbarui, undangan lain utuh) lulus. Lihat `notes/2026-11-06-codex-guest-table-delete.md`.
 
 - **2026-11-06, codex**: `codex/guest-staff-access`: admin tunggal lewat `ADMIN_EMAIL` privat, izin email petugas per undangan di `invitation_staff`, login menuju form tamu (atau pilihan bila beberapa). Petugas hanya mengelola tamu/ucapan; tindakan konten/publikasi/musik/akses tetap admin pemilik. Pencabutan menutup request dari sesi lama. Typecheck, 27 tes, build, dan smoke browser admin/petugas/outsider lulus. Migrasi lokal + Turso sudah diterapkan dengan backup privat dan jumlah data lama tetap; ADMIN_EMAIL Production dikonfigurasi sebagai Secret. Pengiriman magic link hosted belum teruji; status custom SMTP ditanyakan ke pemilik. Lihat `notes/2026-11-06-codex-guest-staff-access.md`.
 

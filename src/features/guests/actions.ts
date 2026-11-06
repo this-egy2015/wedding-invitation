@@ -61,6 +61,7 @@ export async function updateGuestAction(
 export async function deleteGuestAction(invitationId: string, guestId: string) {
   const invitation = await getGuestManagementInvitation(invitationId);
   await db.delete(guests).where(and(eq(guests.id, guestId), eq(guests.invitationId, invitation.id)));
+  revalidatePath(`/dashboard/invitations/${invitation.id}/guests`, "layout");
   redirect(`/dashboard/invitations/${invitation.id}/guests`);
 }
 

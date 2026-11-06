@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CopyButton } from "@/components/CopyButton";
-import { addGuestAction } from "@/features/guests/actions";
+import { ConfirmButton } from "@/components/ConfirmButton";
+import { addGuestAction, deleteGuestAction } from "@/features/guests/actions";
 import { GUEST_PAGE_SIZE, getGuestManagementInvitation, guestLink, listGuests } from "@/features/guests/queries";
 import { rsvpLabel } from "@/features/rsvp/status";
 import { GuestForm } from "./GuestForm";
@@ -61,7 +62,7 @@ export default async function GuestsPage({ params, searchParams }: Props) {
             <tr>
               <th className="px-4 py-3 font-medium">Nama Tamu & Pasangan</th>
               <th className="px-4 py-3 font-medium">Kehadiran</th>
-              <th className="px-4 py-3 font-medium">Action</th>
+              <th className="px-4 py-3 font-medium">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -80,11 +81,17 @@ export default async function GuestsPage({ params, searchParams }: Props) {
                     {g.rsvpStatus === "attending" && ` (${g.attendanceCount}/${g.allowedGuestCount})`}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <CopyButton value={guestLink(invitation.slug, g.shareToken)} />
                       <Link href={`${base}/${g.id}`} className="btn-secondary">
                         Detail
                       </Link>
+                      <form action={deleteGuestAction.bind(null, invitation.id, g.id)}>
+                        <ConfirmButton message={`Hapus tamu “${g.name}” beserta RSVP-nya? Tindakan ini permanen.`}
+                          aria-label={`Hapus tamu ${g.name}`} className="btn-danger">
+                          Hapus
+                        </ConfirmButton>
+                      </form>
                     </div>
                   </td>
                 </tr>
