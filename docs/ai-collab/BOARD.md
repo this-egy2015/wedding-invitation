@@ -4,9 +4,11 @@
 
 | Agen | Branch | Tugas | File yang disentuh |
 |---|---|---|---|
-| — | — | Kartu rekening selesai; deployment diperiksa pada sesi ini | — |
+| — | — | Unggah/timpa MP3 dan floating mute selesai; push/deploy diperiksa pada sesi ini | — |
 
 ## Handoff terakhir
+
+- **2026-11-06, codex**: `codex/music-upload-mute`: editor mengunggah MP3 langsung ke Supabase lewat signed URL khusus owner, maksimal 10 MiB, satu objek tetap per slug (timpa). Bucket `wedding-music` terpisah, dibuat otomatis; admin key hanya server. Floating speaker mute/unmute tidak menghentikan audio. Typecheck, 26 tes, build, smoke lokal upload 6 MB → draft/publish → timpa, penolakan MIME/ukuran/ownership/anonim, Range dan Chrome mobile lulus. Lihat `notes/2026-11-06-codex-music-upload-mute.md`.
 
 - **2026-11-06, codex**: `codex/gift-single-card`: Tanda Kasih menjadi satu kartu berisi beberapa rekening dan tombol salin per rekening. Angka memakai Inter/tabular numerals; editor diberi petunjuk. Typecheck, 24 tes, build, smoke 0/1/2/5 rekening pada 320/390/1280px serta clipboard lulus. Lihat `notes/2026-11-06-codex-gift-single-card.md`.
 
@@ -50,7 +52,7 @@
 - GitHub sudah publik dan deploy key SSH berizin tulis sudah ditambahkan; push berhasil.
 - Pilihan akhir: aplikasi penuh Vercel, database/storage remote. Supabase hosted dan Turso Starter (`wedding-invitation-db`, Tokyo) sudah terhubung ke Production; undangan produksi `/gaby-afdhal` dan RSVP publik sudah live. Pemilik sedang mengatur Site URL/Redirect URL Supabase dengan panduan yang diberikan; login email belum diverifikasi. Variabel Supabase bertipe Secret hanya tersedia saat build/runtime remote, hasil env pull berisi placeholder.
 
-- Upload media dari dashboard belum dibuat; seed/admin memakai Supabase Storage pada namespace `berubah/<slug>`.
+- Upload lagu MP3 dari dashboard tersedia (10 MiB, timpa); upload gambar masih melalui seed/admin Storage pada namespace `berubah/<slug>`.
 - Rate limiting: cukup Vercel WAF, atau perlu di level aplikasi?
 - Migrasi dashboard ke shadcn/ui: ya/tidak?
 - Tidak ada pertanyaan Figma aktif: Frame 1 dan Frame 2 sudah diprototipekan secara mandiri.

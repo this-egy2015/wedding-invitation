@@ -51,6 +51,7 @@ export default async function EditInvitationPage({ params }: { params: Promise<{
       </div>
 
       <ContentForm
+        invitationId={invitation.id}
         initial={invitation.draftContent}
         timezones={TIMEZONES}
         action={saveDraftAction.bind(null, invitation.id)}

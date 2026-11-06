@@ -41,6 +41,8 @@ Media disimpan di bucket publik `wedding-assets` pada `SUPABASE_URL`, dengan pre
 
 Saat lokal, CLI Supabase menyediakan kunci tanpa menuliskannya ke repo. Saat hosted, isi `SUPABASE_SERVICE_ROLE_KEY` atau `SUPABASE_SECRET_KEY` melalui environment privat untuk seed; jangan memakai awalan `NEXT_PUBLIC_`. Seed memeriksa gambar sebelum menyimpan DB. `R2_PUBLIC_URL` tidak dipakai lagi. Gambar konten tetap terpisah dari ornamen UI template.
 
+Musik di editor memakai **pilih file MP3, maksimal 10 MB**. Key admin tersebut juga diperlukan oleh server aplikasi untuk membuat izin upload setelah memeriksa pemilik undangan. File dikirim langsung ke Supabase dengan signed URL, ke satu objek `wedding-music/berubah/<slug>/audio/music.mp3`. Bucket dibuat otomatis pada upload pertama, hanya menerima `audio/mpeg` maksimal 10 MiB, tanpa policy tulis publik. Pengganti **menimpa lagu yang sudah terbit**; pemasangan pertama memerlukan Simpan Draft → Publikasikan. URL lama tetap didukung. Playback baru mengambil file terbaru; tab yang sedang memutar perlu dimuat ulang. Setelah Buka Undangan, tombol speaker mengambang membisukan/menyalakan audio tanpa menghentikan lagu.
+
 Halaman yang sudah di-cache perlu diterbitkan ulang lewat dashboard pemilik setelah seed. Form RSVP tersedia juga di link umum. Tamu mengisi nama, kehadiran, jumlah (1–20), dan ucapan. Cookie HttpOnly per undangan memungkinkan pembaruan respons pada browser yang sama. Link personal dari dashboard tetap mengikuti kuota owner. Ucapan terbaru yang tidak dimoderasi dibaca dari DB dan dimuat bertahap di bawah form (maksimal 5 kartu terlihat, infinite scroll); tidak ada ucapan contoh.
 
 ### Deployment dan backup
@@ -91,7 +93,7 @@ src/
 
 ## Belum dikerjakan (sengaja / butuh keputusan)
 
-- **Upload dari dashboard**: belum dibuat. Seed/admin menaruh file di Storage; editor menerima path `/berubah/<slug>/<file>`. Bucket publik hanya untuk membaca media, tanpa policy tulis anonim.
+- **Upload gambar dari dashboard**: belum dibuat. Seed/admin menaruh gambar di Storage; editor menerima path `/berubah/<slug>/<file>`. Musik sudah dapat diunggah sebagai file MP3.
 - **Rate limiting**: belum ada di level aplikasi. Aturan WAF perlu mencakup POST RSVP pada route publik `/:idUndangan`. Respons terbatas satu baris per token, tetapi form umum dapat membuat tamu baru. Honeypot bukan pengganti rate limit WAF.
 - **shadcn/ui**: dashboard masih Tailwind biasa. Jalankan `npx shadcn@latest init` bila ingin migrasi.
 - Penjadwalan backup off-host dan monitoring belum otomatis; alat snapshot SQLite tersedia melalui `npm run db:backup`.

@@ -1,11 +1,14 @@
 "use client";
 
-import { useActionState, useTransition } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { FormErrors } from "@/components/FormErrors";
 import type { FormState } from "@/features/invitations/actions";
 import type { InvitationContent } from "@/features/invitations/content";
+import { prepareMusicUploadAction } from "@/features/invitations/music-actions";
+import { musicFileError } from "@/lib/music-upload";
 
 type Props = {
+  invitationId: string;
   initial: InvitationContent | null;
   timezones: readonly string[];
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
@@ -39,9 +42,38 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export function ContentForm({ initial, timezones, action }: Props) {
+export function ContentForm({ invitationId, initial, timezones, action }: Props) {
   const [state, formAction] = useActionState(action, { ok: false, errors: [] });
   const [pending, startTransition] = useTransition();
+  const [uploading, startUpload] = useTransition();
+  const [musicUrl, setMusicUrl] = useState(initial?.musicUrl ?? "");
+  const [musicMessage, setMusicMessage] = useState("");
+  const [musicError, setMusicError] = useState("");
+
+  function uploadMusic(file: File) {
+    setMusicError("");
+    setMusicMessage("");
+    const error = musicFileError(file);
+    if (error) { setMusicError(error); return; }
+    startUpload(async () => {
+      try {
+        const result = await prepareMusicUploadAction(invitationId, { name: file.name, size: file.size, type: file.type });
+        if (result.error || !result.signedUrl) {
+          setMusicError(result.error ?? "Unggahan belum tersedia.");
+          return;
+        }
+        const response = await fetch(result.signedUrl, {
+          method: "PUT", body: file,
+          headers: { "Content-Type": "audio/mpeg", "Cache-Control": "max-age=0" },
+        });
+        if (!response.ok) throw new Error("Upload failed");
+        setMusicUrl(result.musicUrl);
+        setMusicMessage("Lagu berhasil diunggah. Simpan Draft dan Publikasikan untuk memasang lagu pertama kali. Lagu pengganti langsung menimpa lagu sebelumnya.");
+      } catch {
+        setMusicError("Lagu gagal diunggah. Periksa koneksi lalu pilih file kembali.");
+      }
+    });
+  }
 
   const person = (key: "groom" | "bride", label: string) => (
     <Section title={label}>
@@ -72,6 +104,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
       // Submit via transition instead of `action=` so React does not reset the fields when validation fails.
       onSubmit={(e) => {
         e.preventDefault();
+        if (uploading) return;
         const formData = new FormData(e.currentTarget);
         startTransition(() => formAction(formData));
       }}
@@ -109,7 +142,20 @@ export function ContentForm({ initial, timezones, action }: Props) {
           defaultValue={initial?.recipientName}
           hint='Tampil sebagai "Kepada Yth. [nama]". Kosongkan untuk "Tamu Undangan". Link personal tamu tetap menimpa nama ini.'
         />
-        <Field name="musicUrl" label="Path musik (opsional)" defaultValue={initial?.musicUrl} />
+        <div>
+          <label htmlFor="music-file" className="label">Lagu undangan (opsional)</label>
+          <input id="music-file" type="file" accept=".mp3,audio/mpeg" disabled={pending || uploading}
+            className="input" aria-describedby="music-hint" onChange={(event) => {
+              const file = event.currentTarget.files?.[0];
+              event.currentTarget.value = "";
+              if (file) uploadMusic(file);
+            }} />
+          <input type="hidden" name="musicUrl" value={musicUrl} />
+          <p id="music-hint" className="mt-1 text-xs text-neutral-500">MP3, maksimal 10 MB. Pilih file untuk mengunggah. Lagu baru menimpa lagu lama, termasuk di undangan yang sudah terbit.</p>
+          {musicUrl && <p className="mt-2 text-sm">Lagu tersedia untuk undangan ini.</p>}
+          <p role="status" className="mt-2 text-sm text-green-700">{uploading ? "Mengunggah lagu…" : musicMessage}</p>
+          {musicError && <p role="alert" className="mt-2 text-sm text-red-700">{musicError}</p>}
+        </div>
       </Section>
 
       {person("groom", "Mempelai Pria")}
@@ -160,7 +206,7 @@ export function ContentForm({ initial, timezones, action }: Props) {
 
       <FormErrors errors={state.errors} />
       {state.ok && !pending && <p className="text-sm text-green-700">Draft tersimpan.</p>}
-      <button type="submit" disabled={pending} className="btn-primary">
+      <button type="submit" disabled={pending || uploading} className="btn-primary">
         {pending ? "Menyimpan..." : "Simpan Draft"}
       </button>
     </form>

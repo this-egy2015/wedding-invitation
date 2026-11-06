@@ -100,6 +100,10 @@ Seed ulang **tidak menimpa konten/status, gambar, tamu, respons, atau moderasi y
 
 File baru/berubah ditempatkan pada `wedding-assets/berubah/<slug>/...` melalui Storage, kemudian isi path `/berubah/<slug>/<file>` di editor. Pakai nama file baru saat mengganti foto agar cache memakai versi baru. Route aplikasi hanya melayani GET/HEAD; tidak ada upload anonim. Media tersedia melalui server aplikasi tanpa menyimpan file dalam filesystem Vercel.
 
+Untuk lagu: dashboard → Edit Undangan → Lagu undangan → pilih MP3 maksimal 10 MB. Tunggu unggahan sukses, lalu **Simpan Draft → Publikasikan** untuk pemasangan pertama. Memilih lagu berikutnya langsung menimpa satu file lagu yang sama, termasuk di link yang sudah terbit. Muat ulang undangan untuk mendengar versi baru. Tombol speaker mengambang tersedia setelah membuka undangan.
+
+Server memerlukan `SUPABASE_SERVICE_ROLE_KEY` atau `SUPABASE_SECRET_KEY` privat. Untuk lokal, salin service-role key dari `npx supabase status -o env` ke `.env.local` (jangan commit/kirim ke chat), lalu restart dev server. Bucket publik `wedding-music` dibuat otomatis saat upload pertama: hanya `audio/mpeg`, maksimal 10 MiB. Jangan tambahkan policy tulis anonim. Upload langsung ke Supabase memakai izin sementara untuk satu path yang ditentukan server; key admin tidak dikirim ke browser.
+
 ## Login dan mencoba RSVP
 
 1. Buka **http://localhost:3000/login** dan masukkan email owner.
@@ -154,7 +158,7 @@ TURSO_DATABASE_URL=libsql://<database>-<organization>.turso.io
 TURSO_AUTH_TOKEN=<token database>
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_PUBLISHABLE_KEY=<key publik dari integrasi>
-SUPABASE_SECRET_KEY=<key privat untuk proses seed>
+SUPABASE_SECRET_KEY=<key privat untuk seed dan upload lagu>
 SEED_OWNER_ID=<UUID Auth hosted>
 SITE_URL=https://<domain-aplikasi>.vercel.app
 ```

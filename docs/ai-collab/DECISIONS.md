@@ -1,5 +1,11 @@
 # Keputusan
 
+## 013. Unggah dan timpa musik per undangan (2026-11-06, codex)
+
+**Konteks**: Pemilik meminta input file lagu melalui layanan undangan, sistem timpa, dan kontrol mute mengambang.
+**Keputusan**: Editor menerima MP3 maksimal 10 MiB. Server memeriksa ownership lalu menerbitkan signed upload untuk satu objek tetap per slug di bucket publik `wedding-music`, tanpa policy tulis publik. File dikirim langsung ke Supabase agar tidak melewati batas body Vercel. URL konten tetap `/berubah/<slug>/audio/music.mp3`; route ini mengarahkan pembacaan langsung ke Storage tanpa cache aplikasi. Bucket musik terpisah agar batas MIME audio tidak memperluas izin bucket gambar. Tombol speaker mengubah mute tanpa menghentikan waktu lagu.
+**Konsekuensi**: Upload pengganti langsung menimpa lagu yang dipakai link terbit; pemasangan pertama tetap perlu Simpan Draft dan Publikasikan. Lagu lama tidak dihapus sebelum upload berhasil. Path musik lama tetap kompatibel. Key admin hanya di server, termasuk konfigurasi lokal; tidak ada migrasi DB. Satu format MP3 untuk kompatibilitas browser, tanpa playlist atau histori lagu.
+
 ## 012. Satu kartu Tanda Kasih untuk beberapa rekening (2026-11-06, codex)
 
 **Konteks**: Pemilik meminta dua rekening tidak mengulang seluruh kartu dan font nomor rekening diperjelas.

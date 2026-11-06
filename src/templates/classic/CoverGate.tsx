@@ -19,6 +19,7 @@ export function CoverGate({ coupleName, title, guestName, coverImage, portraitIm
   const [opening, setOpening] = useState(false);
   const [opened, setOpened] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(false);
   const coverRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -50,18 +51,26 @@ export function CoverGate({ coupleName, title, guestName, coverImage, portraitIm
     return () => { animation.onfinish = null; animation.cancel(); };
   }, [opening]);
 
-  async function toggleMusic(play: boolean) {
+  async function playMusic() {
     const audio = audioRef.current;
     if (!audio) return;
-    if (play) await audio.play().then(() => setPlaying(true), () => setPlaying(false));
-    else { audio.pause(); setPlaying(false); }
+    await audio.play().then(() => setPlaying(true), () => setPlaying(false));
+  }
+
+  function toggleMute() {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const nextMuted = playing && !muted;
+    audio.muted = nextMuted;
+    setMuted(nextMuted);
+    if (!nextMuted) void playMusic();
   }
 
   function open() {
     if (opening) return;
     window.scrollTo({ top: 0, behavior: "instant" });
     setOpening(true);
-    void toggleMusic(true);
+    void playMusic();
   }
 
   return (
@@ -92,8 +101,18 @@ export function CoverGate({ coupleName, title, guestName, coverImage, portraitIm
       </div>
       {musicUrl && (
         <>
-          <audio ref={audioRef} src={musicUrl} loop preload="none" />
-          {opened && <button type="button" onClick={() => void toggleMusic(!playing)} aria-label={playing ? "Matikan musik" : "Putar musik"} className={styles.musicButton}>{playing ? "❚❚" : "♪"}</button>}
+          <audio ref={audioRef} src={musicUrl} loop preload="none"
+            onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={() => setPlaying(false)} />
+          {opened && (
+            <button type="button" onClick={toggleMute} aria-pressed={muted || !playing}
+              aria-label={muted || !playing ? "Nyalakan musik" : "Bisukan musik"}
+              title={muted || !playing ? "Nyalakan musik" : "Bisukan musik"} className={styles.musicButton}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+                {muted || !playing ? <path d="m16 9 5 6m0-6-5 6" /> : <><path d="M15 8a6 6 0 0 1 0 8" /><path d="M18 5a10 10 0 0 1 0 14" /></>}
+              </svg>
+            </button>
+          )}
         </>
       )}
     </div>

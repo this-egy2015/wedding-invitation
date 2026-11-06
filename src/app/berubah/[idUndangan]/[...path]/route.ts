@@ -1,5 +1,6 @@
 import { env } from "@/env";
 import { assetContentType } from "@/lib/asset-path";
+import { MUSIC_BUCKET, MUSIC_FILE, musicPath } from "@/lib/music-upload";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,6 +11,12 @@ async function serve(request: Request, { params }: Context) {
   const { idUndangan, path } = await params;
   const contentType = assetContentType(idUndangan, path);
   if (!contentType) return new Response(null, { status: 404 });
+  if (path.join("/") === MUSIC_FILE) {
+    // Direct playback avoids proxying large audio through a Vercel Function.
+    const url = new URL(`/storage/v1/object/public/${MUSIC_BUCKET}/${musicPath(idUndangan)}`, env.SUPABASE_URL);
+    url.searchParams.set("v", String(Date.now()));
+    return new Response(null, { status: 307, headers: { Location: url.href, "Cache-Control": "no-store" } });
+  }
   try {
     const upstream = await fetch(`${env.SUPABASE_URL.replace(/\/$/, "")}/storage/v1/object/public/wedding-assets/berubah/${idUndangan}/${path.join("/")}`, {
       method: request.method, cache: "no-store", redirect: "error", signal: AbortSignal.timeout(15000),
