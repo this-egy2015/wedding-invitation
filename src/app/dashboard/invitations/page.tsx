@@ -1,10 +1,15 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/auth";
+import { isAdminEmail } from "@/lib/access-policy";
 import { listOwnedInvitations } from "@/features/invitations/queries";
 import { env } from "@/env";
 
 const STATUS_LABEL = { draft: "Draft", published: "Published", unpublished: "Unpublished" } as const;
 
 export default async function InvitationsPage() {
+  const user = await requireUser();
+  if (!isAdminEmail(user.email)) redirect("/dashboard");
   const invitations = await listOwnedInvitations();
 
   return (

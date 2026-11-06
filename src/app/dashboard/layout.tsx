@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import { isAdminEmail } from "@/lib/access-policy";
 import { createSupabaseServerClient } from "@/lib/supabase";
 
 export const metadata: Metadata = { robots: { index: false } };
@@ -20,10 +21,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="min-h-dvh bg-neutral-50">
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-          <Link href="/dashboard/invitations" className="font-semibold">
-            Undangan Digital
+          <Link href="/dashboard" className="font-semibold">
+            Kelola Tamu
           </Link>
           <div className="flex items-center gap-3 text-sm">
+            {isAdminEmail(user.email) && <Link href="/dashboard/invitations" className="btn-secondary">Undangan</Link>}
             <span className="hidden text-neutral-600 sm:inline">{user.email}</span>
             <form action={signOutAction}>
               <button type="submit" className="btn-secondary">

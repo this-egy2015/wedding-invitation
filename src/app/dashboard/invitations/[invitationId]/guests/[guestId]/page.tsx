@@ -2,8 +2,7 @@ import Link from "next/link";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { CopyButton } from "@/components/CopyButton";
 import { deleteGuestAction, setWishVisibilityAction, updateGuestAction } from "@/features/guests/actions";
-import { getGuest, guestLink } from "@/features/guests/queries";
-import { getOwnedInvitation } from "@/features/invitations/queries";
+import { getGuest, getGuestManagementInvitation, guestLink } from "@/features/guests/queries";
 import { rsvpLabel } from "@/features/rsvp/status";
 import { GuestForm } from "../GuestForm";
 
@@ -16,7 +15,7 @@ export default async function GuestDetailPage({
   params: Promise<{ invitationId: string; guestId: string }>;
 }) {
   const { invitationId, guestId } = await params;
-  const invitation = await getOwnedInvitation(invitationId);
+  const invitation = await getGuestManagementInvitation(invitationId);
   const guest = await getGuest(invitation.id, guestId);
   const link = guestLink(invitation.slug, guest.shareToken);
 

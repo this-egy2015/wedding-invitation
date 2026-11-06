@@ -48,7 +48,7 @@ export function saveRsvp(db: Database, input: { token: string; status: "attendin
   }, { behavior: "immediate" });
 }
 
-/** Caller must verify ownership with getOwnedInvitation before using this mutation. */
+/** Caller must verify guest-management access before using this mutation. */
 export function updateGuestDetails(db: Database, invitationId: string, guestId: string, input: { name: string; partnerName: string | null; allowedGuestCount: number }) {
   return db.transaction(async (tx) => {
     const where = and(eq(guests.id, guestId), eq(guests.invitationId, invitationId));

@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { CopyButton } from "@/components/CopyButton";
 import { addGuestAction } from "@/features/guests/actions";
-import { GUEST_PAGE_SIZE, guestLink, listGuests } from "@/features/guests/queries";
-import { getOwnedInvitation } from "@/features/invitations/queries";
+import { GUEST_PAGE_SIZE, getGuestManagementInvitation, guestLink, listGuests } from "@/features/guests/queries";
 import { rsvpLabel } from "@/features/rsvp/status";
 import { GuestForm } from "./GuestForm";
 
@@ -14,7 +13,7 @@ type Props = {
 export default async function GuestsPage({ params, searchParams }: Props) {
   const { invitationId } = await params;
   const { q, page: pageParam } = await searchParams;
-  const invitation = await getOwnedInvitation(invitationId);
+  const invitation = await getGuestManagementInvitation(invitationId);
 
   const search = typeof q === "string" ? q.trim().slice(0, 100) : "";
   const page = Math.max(1, Number.parseInt(typeof pageParam === "string" ? pageParam : "1", 10) || 1);
@@ -30,9 +29,12 @@ export default async function GuestsPage({ params, searchParams }: Props) {
           <h1 className="text-2xl font-semibold">Daftar Tamu</h1>
           <p className="text-sm text-neutral-600">/{invitation.slug}</p>
         </div>
-        <Link href={`/dashboard/invitations/${invitation.id}/edit`} className="btn-secondary">
-          Kembali ke Undangan
-        </Link>
+        {invitation.canEditInvitation && (
+          <div className="flex flex-wrap gap-2">
+            <Link href={`/dashboard/invitations/${invitation.id}/staff`} className="btn-secondary">Akses Petugas</Link>
+            <Link href={`/dashboard/invitations/${invitation.id}/edit`} className="btn-secondary">Edit Undangan</Link>
+          </div>
+        )}
       </div>
 
       {invitation.status !== "published" && (

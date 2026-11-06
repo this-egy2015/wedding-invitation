@@ -9,8 +9,7 @@ import { db } from "@/db";
 import { guests, rsvps } from "@/db/schema";
 import { updateGuestDetails } from "@/db/writes";
 import { formatIssues } from "@/features/invitations/content";
-import { getOwnedInvitation } from "@/features/invitations/queries";
-import { getGuest } from "./queries";
+import { getGuest, getGuestManagementInvitation } from "./queries";
 
 export type GuestFormState = { ok: boolean; errors: string[] };
 
@@ -32,7 +31,7 @@ export async function addGuestAction(
   _prev: GuestFormState,
   formData: FormData,
 ): Promise<GuestFormState> {
-  const invitation = await getOwnedInvitation(invitationId);
+  const invitation = await getGuestManagementInvitation(invitationId);
   const parsed = guestSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, errors: formatIssues(parsed.error) };
 
@@ -47,7 +46,7 @@ export async function updateGuestAction(
   _prev: GuestFormState,
   formData: FormData,
 ): Promise<GuestFormState> {
-  const invitation = await getOwnedInvitation(invitationId);
+  const invitation = await getGuestManagementInvitation(invitationId);
   const guest = await getGuest(invitation.id, guestId);
   const parsed = guestSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, errors: formatIssues(parsed.error) };
@@ -60,13 +59,13 @@ export async function updateGuestAction(
 }
 
 export async function deleteGuestAction(invitationId: string, guestId: string) {
-  const invitation = await getOwnedInvitation(invitationId);
+  const invitation = await getGuestManagementInvitation(invitationId);
   await db.delete(guests).where(and(eq(guests.id, guestId), eq(guests.invitationId, invitation.id)));
   redirect(`/dashboard/invitations/${invitation.id}/guests`);
 }
 
 export async function setWishVisibilityAction(invitationId: string, guestId: string, visible: boolean) {
-  const invitation = await getOwnedInvitation(invitationId);
+  const invitation = await getGuestManagementInvitation(invitationId);
   const guest = await getGuest(invitation.id, guestId);
   await db.update(rsvps).set({ isWishVisible: visible }).where(eq(rsvps.guestId, guest.id));
 

@@ -31,6 +31,10 @@ Setelah mengubah `src/db/schema.ts`, jalankan `npm run db:generate` untuk membua
 
 Supabase Auth: aktifkan Email provider (magic link), set **Site URL** = `SITE_URL`, dan tambahkan `${SITE_URL}/auth/callback` ke Redirect URLs.
 
+Isi `ADMIN_EMAIL` secara privat dengan email admin yang ditetapkan pemilik. Hanya email ini dapat mengelola konten dan memberikan akses petugas pada undangan miliknya. Setelah login, `/dashboard` langsung membuka form/daftar tamu bila satu undangan tersedia; jika beberapa, tampil pilihan undangan. Admin membuka **Akses Petugas** dari halaman tamu, menambahkan email, lalu membagikan `/login`. Tidak ada email otomatis saat izin ditambahkan. Petugas hanya dapat mengelola tamu/ucapan pada undangan yang ditetapkan; pencabutan izin berlaku pada request berikutnya, termasuk sesi lama. Link undangan dan RSVP publik tetap tanpa login.
+
+Email login harus diverifikasi oleh Supabase (`email_confirmed_at`); metadata profil tidak menentukan peran. `invitation_staff` berada di SQLite/libSQL, bukan tabel Supabase. Akun yang dibuat langsung lewat Supabase tetap tidak mendapat akses aplikasi tanpa izin admin. Untuk mengirim magic link ke email di luar tim proyek, konfigurasikan [custom SMTP Supabase](https://supabase.com/docs/guides/auth/auth-smtp); SMTP bawaan bukan pengiriman email produksi. Pengujian login/email hosted belum diverifikasi.
+
 ### Inisialisasi undangan
 
 Setelah `npm run db:migrate`, jalankan `npm run db:seed`. Seed menginisialisasi **hanya** `/gaby-afdhal` jika belum ada, dengan teks acara dari prototype dan 37 gambar (termasuk 30 galeri). Tidak membuat tamu, RSVP, ucapan, atau rekening contoh. Pengulangan seed mempertahankan konten, status terbit, gambar, tamu, dan respons existing. Musik kosong karena prototype tidak menyertakan berkas audio.
@@ -75,7 +79,7 @@ src/
 
 ## Keputusan desain
 
-- **Ownership**: seluruh akses dashboard melewati `requireUser()`/`getOwnedInvitation()` (filter `owner_id`). Identitas tetap diverifikasi lewat Supabase Auth; proxy hanya me-refresh session. UUID owner dipertahankan saat impor.
+- **Akses dashboard**: `requireUser()` memverifikasi user/email Supabase dan allowlist admin/petugas. `getOwnedInvitation()` tetap admin saja dan memfilter `owner_id`; operasi tamu memakai `getGuestManagementInvitation()` yang memeriksa email petugas untuk undangan itu melalui `requireUser()`. Semua action memeriksa ulang izin. Proxy hanya me-refresh session. UUID owner dipertahankan saat impor.
 - **Batas akses SQLite**: modul DB ditandai `server-only`, file privat, query terparameterisasi, foreign keys aktif di setiap koneksi, serta constraint status/token/kuota/JSON di database. Tidak ada Data API SQLite publik atau RLS. Foreign key ke `auth.users` tidak bisa lintas database; penghapusan akun Supabase perlu disertai penghapusan data aplikasi secara terpisah.
 - **Caching publik**: konten published di-cache per slug (`unstable_cache` + tag). `publish`/`unpublish` memanggil `updateTag`. Tamu dan ucapan dibaca per request, sehingga token tidak pernah masuk cache.
 - **Route publik**: `/:idUndangan` memakai slug immutable (contoh `/fajar-nadya`), bukan UUID internal dashboard atau ID template. `/`, `/home`, dan slug tidak terbit/tidak dikenal menampilkan 404 “Undangan tidak ditemukan”. `/invite/:slug` mengarahkan ke route baru sambil mempertahankan token. `/login` hanya diakses lewat URL langsung, tanpa tautan dari undangan.

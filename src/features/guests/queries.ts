@@ -1,10 +1,22 @@
 import { and, asc, count, eq, like, or } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { cache } from "react";
 import { db } from "@/db";
+import { listGuestInvitations } from "@/db/access";
 import { guests, rsvps } from "@/db/schema";
 import { env } from "@/env";
 import { invitationPath } from "@/lib/invitation-url";
+import { requireUser } from "@/lib/auth";
+import { isAdminEmail } from "@/lib/access-policy";
+
+export const getGuestManagementInvitation = cache(async (invitationId: string) => {
+  const user = await requireUser();
+  if (!z.uuid().safeParse(invitationId).success) notFound();
+  const invitation = (await listGuestInvitations(db, user)).find((item) => item.id === invitationId);
+  if (!invitation) notFound();
+  return { ...invitation, canEditInvitation: isAdminEmail(user.email) };
+});
 
 export const GUEST_PAGE_SIZE = 20;
 
@@ -25,8 +37,8 @@ const guestWithRsvp = {
   respondedAt: rsvps.respondedAt,
 };
 
-/** Caller must have verified ownership of invitationId (getOwnedInvitation). */
 export async function listGuests(invitationId: string, search: string, page: number) {
+  await getGuestManagementInvitation(invitationId);
   const where = and(
     eq(guests.invitationId, invitationId),
     search ? or(like(guests.name, `%${search}%`), like(guests.partnerName, `%${search}%`)) : undefined,
@@ -47,8 +59,8 @@ export async function listGuests(invitationId: string, search: string, page: num
   return { rows, total };
 }
 
-/** Caller must have verified ownership of invitationId (getOwnedInvitation). */
 export async function getGuest(invitationId: string, guestId: string) {
+  await getGuestManagementInvitation(invitationId);
   if (!z.uuid().safeParse(guestId).success) notFound();
 
   const [guest] = await db

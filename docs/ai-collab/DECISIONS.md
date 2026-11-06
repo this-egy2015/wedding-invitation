@@ -1,5 +1,11 @@
 # Keputusan
 
+## 014. Admin tunggal dan petugas tamu per undangan (2026-11-06, codex)
+
+**Konteks**: Pemilik menetapkan satu email admin yang boleh menambahkan email petugas. Petugas langsung mengelola tamu setelah login, sedangkan link undangan tetap publik.
+**Keputusan**: Email admin disimpan privat dalam `ADMIN_EMAIL`, sesuai alamat yang diberikan pemilik. Supabase tetap memverifikasi login/email; izin aplikasi berada di tabel SQLite/libSQL `invitation_staff` per undangan dan email ternormalisasi. Hanya admin pemilik undangan yang dapat memberi/mencabut izin. Pemeriksaan server dilakukan pada login, setiap akses dashboard, serta setiap operasi tamu; editor/publikasi/upload musik/pembuatan undangan tetap admin saja. Metadata user bukan sumber hak akses.
+**Konsekuensi**: Login menuju `/dashboard`, langsung ke form tamu bila satu undangan tersedia, atau pilihan undangan bila beberapa. Pencabutan izin berlaku pada request berikutnya, termasuk sesi yang masih login. Akun Supabase di luar daftar tidak mendapat akses aplikasi. Login tetap magic link, sehingga pengiriman ke petugas di luar tim Supabase memerlukan SMTP hosted yang sesuai. Tidak mengirim email otomatis saat admin menambahkan izin. Link undangan/RSVP publik tetap tanpa login.
+
 ## 013. Unggah dan timpa musik per undangan (2026-11-06, codex)
 
 **Konteks**: Pemilik meminta input file lagu melalui layanan undangan, sistem timpa, dan kontrol mute mengambang.

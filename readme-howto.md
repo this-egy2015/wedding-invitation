@@ -2,6 +2,16 @@
 
 Jalankan seluruh perintah dari root repo. Aplikasi memakai SQLite/libSQL untuk undangan/tamu/RSVP, Supabase Auth untuk login, dan Supabase Storage untuk gambar. Lokal memakai file DB + Supabase Docker; Vercel memakai Turso + Supabase hosted.
 
+### Admin dan petugas tamu
+
+Isi `ADMIN_EMAIL` di `.env.local`/environment Production Vercel dengan email admin yang ditetapkan pemilik, tanpa awalan `NEXT_PUBLIC_`. Jalankan migrasi terbaru (`npm run db:migrate`) sebelum memakai versi yang mendukung petugas. Alamat admin tidak disimpan di repo publik.
+
+Admin masuk lewat `/login` menggunakan magic link Supabase. Setelah login, satu undangan langsung membuka **Tambah Tamu**; beberapa undangan menampilkan pilihan. Untuk mengatur petugas, pilih **Akses Petugas** pada halaman tamu → masukkan email → **Tambahkan Akses** → bagikan link `/login`. Petugas login dengan email itu, tanpa membuka cover undangan. Petugas dapat mengelola tamu/ucapan dan menyalin link personal; tidak dapat mengubah konten, menerbitkan, mengunggah musik, membuat undangan atau memberi akses petugas lain.
+
+**Cabut Akses** menutup izin pada undangan tersebut untuk request berikutnya; bila masih ditugaskan ke undangan lain, petugas tetap dapat mengelola yang lain. Tidak menghapus akun Supabase maupun data tamu. Tabel izin adalah `invitation_staff` di database aplikasi SQLite/Turso; membuat user Supabase saja tidak memberi izin dashboard.
+
+Pastikan verifikasi email di Supabase hosted aktif, Site URL/Redirect URL sesuai, dan custom SMTP tersedia untuk email petugas di luar tim Supabase. Menambahkan izin tidak mengirim email; petugas meminta magic link sendiri melalui `/login`. Alamat yang belum diberi izin ditolak sebelum aplikasi meminta pengiriman email.
+
 ## Cepat: workspace yang sudah dikonfigurasi
 
 Pastikan Docker aktif, dependency terpasang, dan `.env.local` berisi konfigurasi lokal yang valid. Hentikan dev server sebelumnya dengan `Ctrl+C` agar port 3000 tidak bentrok.

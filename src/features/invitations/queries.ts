@@ -5,14 +5,14 @@ import { cache } from "react";
 import { z } from "zod";
 import { db } from "@/db";
 import { invitations } from "@/db/schema";
-import { requireUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { isPublicInvitationSlug } from "@/lib/invitation-url";
 
 export const invitationTag = (slug: string) => `invitation:${slug}`;
 
 /** Ownership boundary for every dashboard read and mutation on an invitation. */
 export const getOwnedInvitation = cache(async (invitationId: string) => {
-  const user = await requireUser();
+  const user = await requireAdmin();
   if (!z.uuid().safeParse(invitationId).success) notFound();
 
   const [invitation] = await db
@@ -24,7 +24,7 @@ export const getOwnedInvitation = cache(async (invitationId: string) => {
 });
 
 export async function listOwnedInvitations() {
-  const user = await requireUser();
+  const user = await requireAdmin();
   return db
     .select()
     .from(invitations)

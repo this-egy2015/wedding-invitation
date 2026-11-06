@@ -4,9 +4,11 @@
 
 | Agen | Branch | Tugas | File yang disentuh |
 |---|---|---|---|
-| — | — | Unggah/timpa MP3 dan floating mute selesai; push/deploy diperiksa pada sesi ini | — |
+| — | — | Akses petugas selesai; push/deploy diperiksa pada sesi ini | — |
 
 ## Handoff terakhir
+
+- **2026-11-06, codex**: `codex/guest-staff-access`: admin tunggal lewat `ADMIN_EMAIL` privat, izin email petugas per undangan di `invitation_staff`, login menuju form tamu (atau pilihan bila beberapa). Petugas hanya mengelola tamu/ucapan; tindakan konten/publikasi/musik/akses tetap admin pemilik. Pencabutan menutup request dari sesi lama. Typecheck, 27 tes, build, dan smoke browser admin/petugas/outsider lulus. Migrasi lokal + Turso sudah diterapkan dengan backup privat dan jumlah data lama tetap; ADMIN_EMAIL Production dikonfigurasi sebagai Secret. Pengiriman magic link hosted belum teruji; status custom SMTP ditanyakan ke pemilik. Lihat `notes/2026-11-06-codex-guest-staff-access.md`.
 
 - **2026-11-06, codex**: `codex/music-upload-mute`: editor mengunggah MP3 langsung ke Supabase lewat signed URL khusus owner, maksimal 10 MiB, satu objek tetap per slug (timpa). Bucket `wedding-music` terpisah, dibuat otomatis; admin key hanya server. Floating speaker mute/unmute tidak menghentikan audio. Typecheck, 26 tes, build, smoke lokal upload 6 MB → draft/publish → timpa, penolakan MIME/ukuran/ownership/anonim, Range dan Chrome mobile lulus. Lihat `notes/2026-11-06-codex-music-upload-mute.md`.
 

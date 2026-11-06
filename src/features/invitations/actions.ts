@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
 import { invitations } from "@/db/schema";
-import { requireUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { isPublicInvitationSlug } from "@/lib/invitation-url";
 import { templates, type TemplateId } from "@/templates";
 import { contentFromFormData, contentSchema, formatIssues } from "./content";
@@ -27,7 +27,7 @@ const createSchema = z.object({
 });
 
 export async function createInvitationAction(_prev: FormState, formData: FormData): Promise<FormState> {
-  const user = await requireUser();
+  const user = await requireAdmin();
   const parsed = createSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, errors: formatIssues(parsed.error) };
 

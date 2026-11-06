@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { sql } from "drizzle-orm";
-import { check, index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { check, index, integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import type { InvitationContent } from "@/features/invitations/content";
 
 const timestamps = {
@@ -26,6 +26,16 @@ export const invitations = sqliteTable("invitations", {
   check("invitations_slug_format", sql`length(${t.slug}) between 3 and 60 and ${t.slug} not glob '*[^a-z0-9-]*' and ${t.slug} not like '-%' and ${t.slug} not like '%-' and ${t.slug} not like '%--%'`),
   check("invitations_draft_json", sql`${t.draftContent} is null or json_valid(${t.draftContent})`),
   check("invitations_published_json", sql`${t.publishedContent} is null or json_valid(${t.publishedContent})`),
+]);
+
+export const invitationStaff = sqliteTable("invitation_staff", {
+  invitationId: text("invitation_id").notNull().references(() => invitations.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  createdAt: timestamps.createdAt,
+}, (t) => [
+  primaryKey({ columns: [t.invitationId, t.email] }),
+  index("invitation_staff_email_idx").on(t.email),
+  check("invitation_staff_normalized_email", sql`${t.email} = lower(trim(${t.email})) and length(${t.email}) between 3 and 254`),
 ]);
 
 export const guests = sqliteTable("guests", {

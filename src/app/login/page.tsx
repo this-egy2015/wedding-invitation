@@ -10,7 +10,7 @@ export default function LoginPage() {
     <main className="flex min-h-dvh items-center justify-center bg-neutral-50 px-4">
       <form action={action} className="w-full max-w-sm space-y-4 rounded-xl border bg-white p-6 shadow-sm">
         <h1 className="text-xl font-semibold">Masuk</h1>
-        <p className="text-sm text-neutral-600">Kami kirim link login ke email kamu.</p>
+        <p className="text-sm text-neutral-600">Masuk dengan email yang sudah diberi akses oleh admin. Link login dikirim ke email kamu, lalu langsung menuju pengelolaan tamu.</p>
         <div>
           <label htmlFor="email" className="label">
             Email
